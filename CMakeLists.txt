@@ -3,6 +3,6 @@ project(robot_dashboard)
 
 find_package(catkin REQUIRED)
 catkin_stack()
-catkin_project(robot_dahsboard)
+catkin_project(robot_dashboard)
 
 catkin_export_python()

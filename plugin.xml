@@ -1,0 +1,11 @@
+<library path="src">
+  <class name="Dash" type="robot_dashboard.dashboard.Dashboard" base_class_type="rqt_gui_py::Plugin">
+    <description>
+    Test robot_dashoard
+    </description>
+    <qtgui>
+      <label>TestDash</label>
+      <statustip>Test robot_dashboard.</statustip>
+    </qtgui>
+  </class>
+</library>
