@@ -13,6 +13,7 @@
   <depend package="rqt_gui_py"/>
 
   <depend package="robot_monitor"/>
+  <depend package="rqt_console" />
 
 </package>
 

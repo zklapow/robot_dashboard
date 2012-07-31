@@ -1,2 +1,3 @@
-from robot_monitor_widget import RobotMonitorWidget
+from robot_monitor_widget import MonitorDashWidget
+from console_dash_widget import ConsoleDashWidget
 from dashboard import Dashboard

@@ -1,16 +1,17 @@
 from robot_monitor import RobotMonitor
 from QtGui import QPushButton
 
-class RobotMonitorWidget(QPushButton):
-    def __init__(self):
-        super(RobotMonitorWidget, self).__init__()
+class MonitorDashWidget(QPushButton):
+    def __init__(self, context):
+        super(MonitorDashWidget, self).__init__()
 
-        self.monitor = None
+        self._monitor = None
+        self._context = context
 
-        self.clicked.connect(self.show_monitor)
+        self.clicked.connect(self._show_monitor)
 
-    def show_monitor(self):
-        if not self.monitor:
-            self.monitor = RobotMonitor('diagnostics_agg')
+    def _show_monitor(self):
+        if not self._monitor:
+            self._monitor = RobotMonitor('diagnostics_agg')
 
-        self.monitor.show()
+        self._context.add_widget(self._monitor)
