@@ -1,1 +1,2 @@
+from robot_monitor_widget import RobotMonitorWidget
 from dashboard import Dashboard
