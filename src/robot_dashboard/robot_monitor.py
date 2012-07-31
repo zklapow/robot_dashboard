@@ -2,7 +2,7 @@ import rospy
 from diagnostic_msgs.msg import DiagnosticArray
 
 import QtGui
-from QtGui import QWidget, QVBoxLayout, QTreeWidget, QTextCursor, QTreeWidgetItem
+from QtGui import QWidget, QVBoxLayout, QTreeWidget, QTextCursor, QTreeWidgetItem, QTextEdit, QPushButton
 
 from QtCore import pyqtSignal
 
@@ -22,6 +22,7 @@ class StatusItem(QTreeWidgetItem):
         self.items = []
         self.name = status.name
         self.level = status.level
+        self.inspector = None
         
         self.setText(0, '/' + get_nice_name(self.name))
 
@@ -35,8 +36,11 @@ class StatusItem(QTreeWidgetItem):
 
         return ret
 
-    def update(self, level, msg):
-        self.level = level
+    def update(self, status, msg):
+        self.status = status
+
+        if self.inspector:
+            self.inspector.update(status)
         
         children = self.get_children(msg)
 
@@ -47,16 +51,101 @@ class StatusItem(QTreeWidgetItem):
             name = i.name
             if name in names:
                 w = self.items[names.index(name)]
-                w.update(i.level, msg)
+                w.update(i, msg)
             elif len(self.strip_child(name).split('/')) <= 2:
                 sti = StatusItem(i)
-                sti.update(i.level, msg)
+                sti.update(i, msg)
                 self.items.append(sti)
                 new_items.append(sti)
         self.addChildren(new_items)
 
+    def on_click(self):
+        if not self.inspector:
+            self.inspector = InspectorWidget(self.status)
+            self.inspector.show()
+        else:
+            self.inspector.activateWindow()
+
     def strip_child(self, child):
         return child.replace(self.name, '')
+
+class InspectorWidget(QWidget):
+    class Snapshot(QTextEdit):
+        """Display a single sitatic status message. Helps facilitate copy/paste"""
+        def __init__(self, status):
+            super(InspectorWidget.Snapshot, self).__init__()
+
+            self.write("Full Name", status.name)
+            self.write("Component", status.name.split('/')[-1])
+            self.write("Hardware ID", status.hardware_id)
+            self.write("Level", status.level)
+            self.write("Message", status.message)
+            self.insertPlainText('\n')
+
+            for value in status.values:
+                self.write(value.key, value.value)
+
+            self.show()
+
+        def write(self, k, v):
+            self.setFontWeight(75)
+            self.insertPlainText(str(k))
+            self.insertPlainText(': ')
+         
+            self.setFontWeight(50)
+            self.insertPlainText(str(v))
+            self.insertPlainText('\n')           
+
+    write = pyqtSignal(str, str)
+    newline = pyqtSignal()
+    clear = pyqtSignal()
+    def __init__(self, status):
+        super(InspectorWidget, self).__init__()
+        self.status = status
+        self.setWindowTitle(status.name)
+
+        layout = QVBoxLayout()
+        
+        self.disp = QTextEdit()
+        self.snapshot = QPushButton("Snapshot")
+
+        layout.addWidget(self.disp)
+        layout.addWidget(self.snapshot)
+
+        self.snaps = []
+        self.snapshot.clicked.connect(self.take_snapshot)
+
+        self.write.connect(self.write_kv)
+        self.newline.connect(lambda: self.disp.insertPlainText('\n'))
+        self.clear.connect(lambda: self.disp.clear())
+        self.update(status)
+
+        self.setLayout(layout)
+
+    def write_kv(self, k, v):
+        self.disp.setFontWeight(75)
+        self.disp.insertPlainText(k)
+        self.disp.insertPlainText(': ')
+
+        self.disp.setFontWeight(50)
+        self.disp.insertPlainText(v)
+        self.disp.insertPlainText('\n')
+
+    def update(self, status):
+        self.clear.emit()
+        self.write.emit("Full Name", status.name)
+        self.write.emit("Component", status.name.split('/')[-1])
+        self.write.emit("Hardware ID", status.hardware_id)
+        self.write.emit("Level", str(status.level))
+        self.write.emit("Message", status.message)
+        self.newline.emit()
+
+        for v in status.values:
+            self.write.emit(v.key, v.value)
+
+    def take_snapshot(self):
+        snap = InspectorWidget.Snapshot(self.status)
+        self.snaps.append(snap)
 
 class RobotMonitor(QWidget):
     sig_err = pyqtSignal(str)
@@ -65,6 +154,9 @@ class RobotMonitor(QWidget):
 
     def __init__(self, topic):
         super(RobotMonitor, self).__init__()
+
+        self.setWindowTitle('Robot Monitor')
+
         self.top_items = []
         layout = QVBoxLayout()
 
@@ -79,10 +171,11 @@ class RobotMonitor(QWidget):
 
         self.comp = QTreeWidget()
         self.comp.setHeaderLabel("All")
+        self.comp.itemDoubleClicked.connect(self.tree_clicked)
 
         layout.addWidget(self.err)
         layout.addWidget(self.warn)
-        layout.addWidget(self.comp)
+        layout.addWidget(self.comp, 1)
 
         self.setLayout(layout)
 
@@ -93,6 +186,9 @@ class RobotMonitor(QWidget):
         self.update_tree(msg)
         self.update_we(msg)
 
+    def tree_clicked(self, item, yes):
+        item.on_click()
+
     def update_tree(self, msg):
         #Update the tree from the bottom
 
@@ -101,10 +197,10 @@ class RobotMonitor(QWidget):
         for i in self._top_level(msg):
             name = get_nice_name(i.name)
             if name in names:
-                self.top_items[names.index(name)].update(i.level, msg)
+                self.top_items[names.index(name)].update(i, msg)
             else:
                 nw = StatusItem(i)
-                nw.update(i.level, msg)
+                nw.update(i, msg)
                 self.top_items.append(nw)
                 add.append(nw)
         
