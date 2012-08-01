@@ -29,6 +29,7 @@ class ConsoleDashWidget(QPushButton):
     def show_console(self):
         if not self._console:
             self._console = ConsoleWidget(self._proxymodel)
+            self._console.destroyed.connect(self._console_destroyed)
 
         self.context.add_widget(self._console)
  
@@ -51,3 +52,6 @@ class ConsoleDashWidget(QPushButton):
             self._mutex.lock()
             self._datamodel._insert_message_queue.append(msg)
             self._mutex.unlock()
+
+    def _console_destroyed(self):
+        self._console = None
