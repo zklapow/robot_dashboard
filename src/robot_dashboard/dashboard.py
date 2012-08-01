@@ -2,7 +2,7 @@ import roslib;roslib.load_manifest('robot_dashboard')
 import rospy
 
 from qt_gui.plugin import Plugin
-from QtGui import QWidget, QHBoxLayout, QGroupBox
+from QtGui import QWidget, QHBoxLayout, QGroupBox, QToolBar
 
 class Dashboard(Plugin):
     def __init__(self, context):
@@ -10,27 +10,22 @@ class Dashboard(Plugin):
         self.context = context
         self.setup(context)
 
-        self._main_widget = QWidget()
+        self._main_widget = QToolBar()
         widgets = self.get_widgets()
 
         layout = QHBoxLayout()
 
         for k, v in widgets.iteritems():
-            box = QGroupBox(str(k))
-            box.setFixedSize(100, 100)
-            blayout = QHBoxLayout()
-
             for i in v:
                 try:
-                    blayout.addWidget(i)
+                    i.setFixedSize(100, 100)
+                    self._main_widget.addWidget(i)
                 except:
-                    raise("All widgets must be a subclass of QWidget!")
+                    raise(Exception("All widgets must be a subclass of QWidget!"))
 
-            box.setLayout(blayout)
-            layout.addWidget(box)
+            self._main_widget.addSeparator()
 
         # Display the dashboard
-        self._main_widget.setLayout(layout)
         context.add_widget(self._main_widget)
 
     def setup(self, context):
