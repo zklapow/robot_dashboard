@@ -1,10 +1,13 @@
 import roslib;roslib.load_manifest('robot_dashboard')
 import rospy
 
-from qt_gui.plugin import Plugin
+import qt_gui.qt_binding_helper
+
 from QtGui import QWidget, QHBoxLayout, QGroupBox, QToolBar
+from qt_gui.plugin import Plugin
 
 class Dashboard(Plugin):
+    """Base class from which dashboards should inherit."""
     def __init__(self, context):
         super(Dashboard, self).__init__(context)
         self.context = context
@@ -29,9 +32,19 @@ class Dashboard(Plugin):
         context.add_widget(self._main_widget)
 
     def setup(self, context):
-        """Called during __init__. Subclasses should do initialization here."""
+        """Called during ``__init__`` Subclasses should do initialization here.
+        
+        If this method is overriden it is important to call ``self.setObjectName()`` so that object names do not conflict.
+
+        :param context: The plugin context
+        :type context: qt_gui.plugin.Plugin
+        """
         self.setObjectName('Dashboard')
 
     def get_widgets(self):
-        """Return a dictionary of lists containing the widgets to be displayed by this dashboard"""
+        """
+        Most of the dashboard customization should be done here. If this function is not overriden the dashboard will display nothing.
+
+        :returns: Dictionary of lists containing dashboard widgets.
+        """
         return {}

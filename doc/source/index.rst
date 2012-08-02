@@ -11,7 +11,8 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-
+.. autoclass:: robot_dashboard.Dashboard
+    :members:
 
 Indices and tables
 ==================

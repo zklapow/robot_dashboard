@@ -1,3 +1,5 @@
+import roslib;roslib.load_manifest('robot_dashboard')
+
 from rqt_console.console_widget import ConsoleWidget
 from rqt_console.console_subscriber import ConsoleSubscriber
 from rqt_console.message_data_model import MessageDataModel
