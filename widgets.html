@@ -69,6 +69,48 @@
 <div class="section" id="widget-types">
 <h2>Widget Types<a class="headerlink" href="#widget-types" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
+<dt id="robot_dashboard.widgets.ButtonDashWidget">
+<em class="property">class </em><tt class="descclassname">robot_dashboard.widgets.</tt><tt class="descname">ButtonDashWidget</tt><big>(</big><em>context</em>, <em>name</em>, <em>cb=None</em>, <em>icon=None</em><big>)</big><a class="reference internal" href="_modules/robot_dashboard/widgets.html#ButtonDashWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#robot_dashboard.widgets.ButtonDashWidget" title="Permalink to this definition">¶</a></dt>
+<dd><p>A simple customizable push button widget.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>context</strong> (<em>qt_gui.plugin_context.PluginContext</em>) &#8211; The plugin context to create the widget in.</li>
+<li><strong>name</strong> (<em>str</em>) &#8211; The name to give this widget.</li>
+<li><strong>cb</strong> (<em>callable</em>) &#8211; A function to be called when this button is clicked.</li>
+<li><strong>icon</strong> (<em>str</em>) &#8211; The icon to display in this widgets button.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="robot_dashboard.widgets.ButtonDashWidget.update_state">
+<tt class="descname">update_state</tt><big>(</big><em>state</em><big>)</big><a class="reference internal" href="_modules/robot_dashboard/widgets.html#ButtonDashWidget.update_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#robot_dashboard.widgets.ButtonDashWidget.update_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the override point for customizing a buttons state.
+By default it simply sets the widgets stylesheet to one selected from <tt class="docutils literal"><span class="pre">self.states</span></tt>. However you can do whatever you like here.
+For example you could change the widgets icon:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">update_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_icon</span> <span class="o">=</span> <span class="n">QIcon</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="s">&#39;warn.svg&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_icon</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>state</strong> (<em>int</em>) &#8211; The state to be set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
 <dt id="robot_dashboard.widgets.ConsoleDashWidget">
 <em class="property">class </em><tt class="descclassname">robot_dashboard.widgets.</tt><tt class="descname">ConsoleDashWidget</tt><big>(</big><em>context</em><big>)</big><a class="reference internal" href="_modules/robot_dashboard/widgets.html#ConsoleDashWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#robot_dashboard.widgets.ConsoleDashWidget" title="Permalink to this definition">¶</a></dt>
 <dd><p>A widget which brings up the ROS console.</p>
@@ -84,7 +126,7 @@
 
 <dl class="class">
 <dt id="robot_dashboard.widgets.MenuDashWidget">
-<em class="property">class </em><tt class="descclassname">robot_dashboard.widgets.</tt><tt class="descname">MenuDashWidget</tt><big>(</big><em>context</em>, <em>name</em>, <em>*args</em><big>)</big><a class="reference internal" href="_modules/robot_dashboard/widgets.html#MenuDashWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#robot_dashboard.widgets.MenuDashWidget" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">robot_dashboard.widgets.</tt><tt class="descname">MenuDashWidget</tt><big>(</big><em>context</em>, <em>name</em>, <em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/robot_dashboard/widgets.html#MenuDashWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#robot_dashboard.widgets.MenuDashWidget" title="Permalink to this definition">¶</a></dt>
 <dd><p>A widget which displays a pop-up menu when clicked</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -94,6 +136,7 @@
 <li><strong>context</strong> (<em>qt_gui.plugin_context.PluginContext</em>) &#8211; The plugin context to create the widget in.</li>
 <li><strong>name</strong> (<em>str</em>) &#8211; The name to give this widget.</li>
 <li><strong>args</strong> (<em>QtGui.QAction</em>) &#8211; A set of actions this menu should perform.</li>
+<li><strong>icon</strong> (<em>str</em>) &#8211; The icon to display in this widgets button.</li>
 </ul>
 </td>
 </tr>

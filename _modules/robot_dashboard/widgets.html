@@ -84,9 +84,15 @@
 <span class="kn">from</span> <span class="nn">rqt_console.message_data_model</span> <span class="kn">import</span> <span class="n">MessageDataModel</span>
 <span class="kn">from</span> <span class="nn">rqt_console.message_proxy_model</span> <span class="kn">import</span> <span class="n">MessageProxyModel</span>
 
-<span class="kn">from</span> <span class="nn">QtCore</span> <span class="kn">import</span> <span class="n">pyqtSignal</span><span class="p">,</span> <span class="n">QMutex</span><span class="p">,</span> <span class="n">QTimer</span>
-<span class="kn">from</span> <span class="nn">QtGui</span> <span class="kn">import</span> <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QMenu</span>
+<span class="kn">from</span> <span class="nn">QtCore</span> <span class="kn">import</span> <span class="n">pyqtSignal</span><span class="p">,</span> <span class="n">QMutex</span><span class="p">,</span> <span class="n">QTimer</span><span class="p">,</span> <span class="n">QSize</span>
+<span class="kn">from</span> <span class="nn">QtGui</span> <span class="kn">import</span> <span class="n">QPushButton</span><span class="p">,</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">QIcon</span>
 
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">rospkg</span>
+
+<span class="n">rp</span> <span class="o">=</span> <span class="n">rospkg</span><span class="o">.</span><span class="n">RosPack</span><span class="p">()</span>
+
+<span class="n">image_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">rp</span><span class="o">.</span><span class="n">get_path</span><span class="p">(</span><span class="s">&#39;robot_dashboard&#39;</span><span class="p">),</span> <span class="s">&#39;images&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MenuDashWidget"><a class="viewcode-back" href="../../widgets.html#robot_dashboard.widgets.MenuDashWidget">[docs]</a><span class="k">class</span> <span class="nc">MenuDashWidget</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A widget which displays a pop-up menu when clicked</span>
@@ -97,17 +103,28 @@
 <span class="sd">    :type name: str</span>
 <span class="sd">    :param args: A set of actions this menu should perform.</span>
 <span class="sd">    :type args: QtGui.QAction</span>
+<span class="sd">    :param icon: The icon to display in this widgets button.</span>
+<span class="sd">    :type icon: str</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MenuDashWidget</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_menu</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">args</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
 
+        <span class="n">icon</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;icon&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">icon</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_icon</span> <span class="o">=</span> <span class="n">QIcon</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">icon</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_icon</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">setMenu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_menu</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="s">&#39;QPushButton::menu-indicator {image: url(none.jpg);}&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="MenuDashWidget.add_action"><a class="viewcode-back" href="../../widgets.html#robot_dashboard.widgets.MenuDashWidget.add_action">[docs]</a>    <span class="k">def</span> <span class="nf">add_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add an action to the menu, and return the newly created action.</span>
@@ -119,6 +136,50 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
 </div></div>
+<div class="viewcode-block" id="ButtonDashWidget"><a class="viewcode-back" href="../../widgets.html#robot_dashboard.widgets.ButtonDashWidget">[docs]</a><span class="k">class</span> <span class="nc">ButtonDashWidget</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;A simple customizable push button widget.</span>
+
+<span class="sd">    :param context: The plugin context to create the widget in.</span>
+<span class="sd">    :type context: qt_gui.plugin_context.PluginContext</span>
+<span class="sd">    :param name: The name to give this widget.</span>
+<span class="sd">    :type name: str</span>
+<span class="sd">    :param cb: A function to be called when this button is clicked.</span>
+<span class="sd">    :type cb: callable</span>
+<span class="sd">    :param icon: The icon to display in this widgets button.</span>
+<span class="sd">    :type icon: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">cb</span> <span class="o">=</span> <span class="bp">None</span><span class="p">,</span> <span class="n">icon</span> <span class="o">=</span> <span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ButtonDashWidget</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="c"># The default states: 0 = OK, 1 = WARN, 2 = ERR</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;QPushButton#</span><span class="si">%s</span><span class="s"> {background-color: green}&quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> 
+                       <span class="s">&quot;QPushButton#</span><span class="si">%s</span><span class="s"> {background-color: yellow}&quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                       <span class="s">&quot;QPushButton#</span><span class="si">%s</span><span class="s"> {background-color: red}&quot;</span><span class="o">%</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">icon</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_icon</span> <span class="o">=</span> <span class="n">QIcon</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="n">icon</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_icon</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">cb</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">cb</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ButtonDashWidget.update_state"><a class="viewcode-back" href="../../widgets.html#robot_dashboard.widgets.ButtonDashWidget.update_state">[docs]</a>    <span class="k">def</span> <span class="nf">update_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This is the override point for customizing a buttons state.</span>
+<span class="sd">        By default it simply sets the widgets stylesheet to one selected from ``self.states``. However you can do whatever you like here.</span>
+<span class="sd">        For example you could change the widgets icon::</span>
+<span class="sd">            def update_state(self, state):</span>
+<span class="sd">                if state == 1:</span>
+<span class="sd">                    self._icon = QIcon(os.path.join(image_path, &#39;warn.svg&#39;))</span>
+<span class="sd">                    self.setIcon(self._icon)</span>
+
+<span class="sd">        :param state: The state to be set.</span>
+<span class="sd">        :type state: int</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_state</span> <span class="o">=</span> <span class="n">state</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setStyleSheet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">states</span><span class="p">[</span><span class="n">state</span><span class="p">])</span>
+</div></div>
 <div class="viewcode-block" id="MonitorDashWidget"><a class="viewcode-back" href="../../widgets.html#robot_dashboard.widgets.MonitorDashWidget">[docs]</a><span class="k">class</span> <span class="nc">MonitorDashWidget</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A widget which brings up the robot_monitor.</span>
 
@@ -127,23 +188,55 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">MonitorDashWidget</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="s">&quot;Robot Monitor&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="s">&quot;MonitorWidget&quot;</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_monitor</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_monitor</span> <span class="o">=</span> <span class="n">RobotMonitor</span><span class="p">(</span><span class="s">&#39;diagnostics_agg&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_monitor</span><span class="o">.</span><span class="n">destroyed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_monitor_close</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_monitor</span><span class="o">.</span><span class="n">sig_err</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">err</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_monitor</span><span class="o">.</span><span class="n">sig_warn</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">warn</span><span class="p">)</span>
+
+        <span class="c"># Only display a state for 10 sec</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span> <span class="o">=</span> <span class="n">QTimer</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span><span class="o">.</span><span class="n">timeout</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ok</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span><span class="o">.</span><span class="n">setInterval</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">icon</span> <span class="o">=</span> <span class="n">QIcon</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="s">&#39;wrench.svg&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">icon</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">context</span> <span class="o">=</span> <span class="n">context</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">clicked</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_show_monitor</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_show_monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_monitor</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_monitor</span> <span class="o">=</span> <span class="n">RobotMonitor</span><span class="p">(</span><span class="s">&#39;diagnostics_agg&#39;</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_monitor</span><span class="o">.</span><span class="n">destroyed</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_monitor_close</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c">#self.setStyleSheet(&#39;QPushButton {background-color: green; border: none;}&#39;)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">add_widget</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_monitor</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_show_monitor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_monitor</span><span class="p">)</span>
+        <span class="c">#self.context.add_widget(self._monitor)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_monitor</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">err</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="c">#self.setStyleSheet(&#39;QPushButton {background-color:Red; border: none;}&#39;)</span>
+
+        <span class="c"># Restart the timer when a new state arrives</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">warn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="c">#self.setStyleSheet(&#39;QPushButton {background-color:Yellow; border: none;}&#39;)</span>
+
+            <span class="c"># Restaert the timer when a new state arrives</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">ok</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c">#self.setStyleSheet(&#39;QPushButton {background-color:Green; border: none;}&#39;)</span>
 
     <span class="k">def</span> <span class="nf">_monitor_close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_monitor</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_monitor</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">&quot;Monitor closed&quot;</span><span class="p">)</span>
 </div>
 <div class="viewcode-block" id="ConsoleDashWidget"><a class="viewcode-back" href="../../widgets.html#robot_dashboard.widgets.ConsoleDashWidget">[docs]</a><span class="k">class</span> <span class="nc">ConsoleDashWidget</span><span class="p">(</span><span class="n">QPushButton</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;A widget which brings up the ROS console.</span>
@@ -154,6 +247,9 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">ConsoleDashWidget</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">setObjectName</span><span class="p">(</span><span class="s">&#39;Console&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_icon</span> <span class="o">=</span> <span class="n">QIcon</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="s">&#39;chat.svg&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_icon</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_datamodel</span> <span class="o">=</span> <span class="n">MessageDataModel</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_proxymodel</span> <span class="o">=</span> <span class="n">MessageProxyModel</span><span class="p">()</span>

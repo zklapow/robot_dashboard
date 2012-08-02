@@ -54,6 +54,7 @@
 
 <span class="kn">import</span> <span class="nn">qt_gui.qt_binding_helper</span>
 
+<span class="kn">from</span> <span class="nn">QtCore</span> <span class="kn">import</span> <span class="n">QSize</span>
 <span class="kn">from</span> <span class="nn">QtGui</span> <span class="kn">import</span> <span class="n">QWidget</span><span class="p">,</span> <span class="n">QHBoxLayout</span><span class="p">,</span> <span class="n">QGroupBox</span><span class="p">,</span> <span class="n">QToolBar</span>
 <span class="kn">from</span> <span class="nn">qt_gui.plugin</span> <span class="kn">import</span> <span class="n">Plugin</span>
 
@@ -65,6 +66,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_main_widget</span> <span class="o">=</span> <span class="n">QToolBar</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_main_widget</span><span class="o">.</span><span class="n">setIconSize</span><span class="p">(</span><span class="n">QSize</span><span class="p">(</span><span class="mi">80</span><span class="p">,</span> <span class="mi">80</span><span class="p">))</span>
         <span class="n">widgets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_widgets</span><span class="p">()</span>
 
         <span class="n">layout</span> <span class="o">=</span> <span class="n">QHBoxLayout</span><span class="p">()</span>
@@ -72,7 +74,7 @@
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">widgets</span><span class="o">.</span><span class="n">iteritems</span><span class="p">():</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="n">i</span><span class="o">.</span><span class="n">setFixedSize</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+                    <span class="c">#i.setFixedSize(100, 100)</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_main_widget</span><span class="o">.</span><span class="n">addWidget</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
                 <span class="k">except</span><span class="p">:</span>
                     <span class="k">raise</span><span class="p">(</span><span class="ne">Exception</span><span class="p">(</span><span class="s">&quot;All widgets must be a subclass of QWidget!&quot;</span><span class="p">))</span>
