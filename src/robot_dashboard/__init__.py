@@ -1,4 +1,3 @@
-from robot_monitor_widget import MonitorDashWidget
-from console_dash_widget import ConsoleDashWidget
-from menu_dash_widget import MenuDashWidget
-from dashboard import Dashboard
+from .widgets import MonitorDashWidget, ConsoleDashWidget, MenuDashWidget
+
+from .dashboard import Dashboard
