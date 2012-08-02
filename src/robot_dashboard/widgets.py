@@ -33,9 +33,15 @@ from rqt_console.console_subscriber import ConsoleSubscriber
 from rqt_console.message_data_model import MessageDataModel
 from rqt_console.message_proxy_model import MessageProxyModel
 
-from QtCore import pyqtSignal, QMutex, QTimer
-from QtGui import QPushButton, QMenu
+from QtCore import pyqtSignal, QMutex, QTimer, QSize
+from QtGui import QPushButton, QMenu, QIcon
 
+import os.path
+import rospkg
+
+rp = rospkg.RosPack()
+
+image_path = os.path.join(rp.get_path('robot_dashboard'), 'images')
 
 class MenuDashWidget(QPushButton):
     """A widget which displays a pop-up menu when clicked
@@ -47,7 +53,7 @@ class MenuDashWidget(QPushButton):
     :param args: A set of actions this menu should perform.
     :type args: QtGui.QAction
     """
-    def __init__(self, context, name, *args):
+    def __init__(self, context, name, *args, **kwargs):
         super(MenuDashWidget, self).__init__()
         self.setObjectName(name)
 
@@ -56,7 +62,15 @@ class MenuDashWidget(QPushButton):
         for arg in args:
             self._menu.addAction(arg)
 
+        icon = kwargs.get('icon', None)
+
+        if icon:
+            self._icon = QIcon(os.path.join(image_path, icon))
+            self.setIcon(self._icon)
+
         self.setMenu(self._menu)
+
+        self.setStyleSheet('QPushButton::menu-indicator {image: url(none.jpg);}')
 
     def add_action(self, name, callback):
         """Add an action to the menu, and return the newly created action.
@@ -76,23 +90,55 @@ class MonitorDashWidget(QPushButton):
     """
     def __init__(self, context):
         super(MonitorDashWidget, self).__init__()
-        self.setObjectName("Robot Monitor")
+        self.setObjectName("MonitorWidget")
 
-        self._monitor = None
+        self._monitor = RobotMonitor('diagnostics_agg')
+        self._monitor.destroyed.connect(self._monitor_close)
+        self._monitor.sig_err.connect(self.err)
+        self._monitor.sig_warn.connect(self.warn)
+
+        # Only display a state for 10 sec
+        self._timer = QTimer()
+        self._timer.timeout.connect(self.ok)
+        self._timer.setInterval(10000)
+        self._timer.start()
+
+        self.icon = QIcon(os.path.join(image_path, 'wrench.svg'))
+        self.setIcon(self.icon)
+
         self.context = context
 
         self.clicked.connect(self._show_monitor)
 
-    def _show_monitor(self):
-        if not self._monitor:
-            self._monitor = RobotMonitor('diagnostics_agg')
-            self._monitor.destroyed.connect(self._monitor_close)
+        self.state = 0
+        #self.setStyleSheet('QPushButton {background-color: green; border: none;}')
 
-        self.context.add_widget(self._monitor)
+    def _show_monitor(self):
+        print(self._monitor)
+        #self.context.add_widget(self._monitor)
+        self._monitor.show()
+
+    def err(self, msg):
+        self.state = 2
+        #self.setStyleSheet('QPushButton {background-color:Red; border: none;}')
+
+        # Restart the timer when a new state arrives
+        self._timer.start()
+
+    def warn(self, msg):
+        if self.state <= 1:
+            self.state = 1
+            #self.setStyleSheet('QPushButton {background-color:Yellow; border: none;}')
+
+            # Restaert the timer when a new state arrives
+            self._timer.start()
+
+    def ok(self):
+        self.state = 0
+        #self.setStyleSheet('QPushButton {background-color:Green; border: none;}')
 
     def _monitor_close(self):
-        self._monitor.close()
-        self._monitor = None
+        print("Monitor closed")
 
 class ConsoleDashWidget(QPushButton):
     """A widget which brings up the ROS console.
@@ -103,6 +149,9 @@ class ConsoleDashWidget(QPushButton):
     def __init__(self, context):
         super(ConsoleDashWidget, self).__init__()
         self.setObjectName('Console')
+
+        self._icon = QIcon(os.path.join(image_path, 'chat.svg'))
+        self.setIcon(self._icon)
 
         self._datamodel = MessageDataModel()
         self._proxymodel = MessageProxyModel()

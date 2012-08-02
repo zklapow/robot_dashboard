@@ -3,6 +3,7 @@ import rospy
 
 import qt_gui.qt_binding_helper
 
+from QtCore import QSize
 from QtGui import QWidget, QHBoxLayout, QGroupBox, QToolBar
 from qt_gui.plugin import Plugin
 
@@ -14,6 +15,7 @@ class Dashboard(Plugin):
         self.setup(context)
 
         self._main_widget = QToolBar()
+        self._main_widget.setIconSize(QSize(80, 80))
         widgets = self.get_widgets()
 
         layout = QHBoxLayout()
@@ -21,7 +23,7 @@ class Dashboard(Plugin):
         for k, v in widgets.iteritems():
             for i in v:
                 try:
-                    i.setFixedSize(100, 100)
+                    #i.setFixedSize(100, 100)
                     self._main_widget.addWidget(i)
                 except:
                     raise(Exception("All widgets must be a subclass of QWidget!"))
