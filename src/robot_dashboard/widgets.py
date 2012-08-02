@@ -52,10 +52,13 @@ class MenuDashWidget(QPushButton):
     :type name: str
     :param args: A set of actions this menu should perform.
     :type args: QtGui.QAction
+    :param icon: The icon to display in this widgets button.
+    :type icon: str
     """
     def __init__(self, context, name, *args, **kwargs):
         super(MenuDashWidget, self).__init__()
-        self.setObjectName(name)
+        self.name = name
+        self.setObjectName(self.name)
 
         self._menu = QMenu()
 
@@ -81,6 +84,50 @@ class MenuDashWidget(QPushButton):
         :type callback: callable
         """
         return self._menu.addAction(name, callback)
+
+class ButtonDashWidget(QPushButton):
+    """A simple customizable push button widget.
+
+    :param context: The plugin context to create the widget in.
+    :type context: qt_gui.plugin_context.PluginContext
+    :param name: The name to give this widget.
+    :type name: str
+    :param cb: A function to be called when this button is clicked.
+    :type cb: callable
+    :param icon: The icon to display in this widgets button.
+    :type icon: str
+    """
+    def __init__(self, context, name, cb = None, icon = None):
+        super(ButtonDashWidget, self).__init__()
+        self.name = name
+        self.setObjectName(self.name)
+
+        # The default states: 0 = OK, 1 = WARN, 2 = ERR
+        self.states = ["QPushButton#%s {background-color: green}"%self.name, 
+                       "QPushButton#%s {background-color: yellow}"%self.name,
+                       "QPushButton#%s {background-color: red}"%self.name]
+
+        if icon:
+            self._icon = QIcon(os.path.join(image_path, icon))
+            self.setIcon(self._icon)
+        if cb:
+            self.clicked.connect(cb)
+
+    def update_state(self, state):
+        """This is the override point for customizing a buttons state.
+        By default it simply sets the widgets stylesheet to one selected from ``self.states``. However you can do whatever you like here.
+        For example you could change the widgets icon::
+            def update_state(self, state):
+                if state == 1:
+                    self._icon = QIcon(os.path.join(image_path, 'warn.svg'))
+                    self.setIcon(self._icon)
+
+        :param state: The state to be set.
+        :type state: int
+        """
+        self._state = state
+
+        self.setStyleSheet(self.states[state])
 
 class MonitorDashWidget(QPushButton):
     """A widget which brings up the robot_monitor.
