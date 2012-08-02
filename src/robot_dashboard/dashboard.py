@@ -34,7 +34,8 @@ class Dashboard(Plugin):
     def setup(self, context):
         """Called during ``__init__`` Subclasses should do initialization here.
         
-        If this method is overriden it is important to call ``self.setObjectName()`` so that object names do not conflict.
+        .. note::
+            If this method is overriden it is important to call ``self.setObjectName()`` so that object names do not conflict.
 
         :param context: The plugin context
         :type context: qt_gui.plugin.Plugin

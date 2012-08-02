@@ -1,3 +1,30 @@
+"""
+.. module:: widgets
+    :synopsis: Widgets for the robot_dashboard.
+
+.. moduleauthor:: Ze'ev Klapow <zklapow@willowgarage.com>
+
+This module provides a set of standard widgets for using with the dashboard.
+
+To use them you must provide instances of the to your dashboard in its :func:`get_widgets` method. For example::
+    
+    from robot_dashboard.dashboard import Dashboard
+    from robot_dashboard.widgets import MonitorDashWidget, ConsoleDashWidget
+
+    class MyDashboard(Dashboard):
+        def get_widgets(self):
+            self.monitor = MonitorDashWidget(self.context)
+            self.console = ConsoleDashWidget(self.console)
+
+            return({'Diagnostics': [self.monitor, self.console]})
+
+Would create a simple dashboard with the ability to open a robot_monitor and a ROS console.
+
+Widget Types
+============
+
+"""
+
 import roslib;roslib.load_manifest('robot_dashboard')
 from robot_monitor import RobotMonitor
 
@@ -9,7 +36,17 @@ from rqt_console.message_proxy_model import MessageProxyModel
 from QtCore import pyqtSignal, QMutex, QTimer
 from QtGui import QPushButton, QMenu
 
+
 class MenuDashWidget(QPushButton):
+    """A widget which displays a pop-up menu when clicked
+
+    :param context: The plugin context to create the widget in.
+    :type context: qt_gui.plugin_context.PluginContext
+    :param name: The name to give this widget.
+    :type name: str
+    :param args: A set of actions this menu should perform.
+    :type args: QtGui.QAction
+    """
     def __init__(self, context, name, *args):
         super(MenuDashWidget, self).__init__()
         self.setObjectName(name)
@@ -22,10 +59,21 @@ class MenuDashWidget(QPushButton):
         self.setMenu(self._menu)
 
     def add_action(self, name, callback):
-        """Add an action to the menu, and return the newly created action"""
+        """Add an action to the menu, and return the newly created action.
+
+        :param name: The name of the action.
+        :type name: str
+        :param callback: Function to be called when this item is pressed.
+        :type callback: callable
+        """
         return self._menu.addAction(name, callback)
 
 class MonitorDashWidget(QPushButton):
+    """A widget which brings up the robot_monitor.
+
+    :param context: The plugin context to create the monitor in.
+    :type context: qt_gui.plugin_context.PluginContext
+    """
     def __init__(self, context):
         super(MonitorDashWidget, self).__init__()
         self.setObjectName("Robot Monitor")
@@ -47,6 +95,11 @@ class MonitorDashWidget(QPushButton):
         self._monitor = None
 
 class ConsoleDashWidget(QPushButton):
+    """A widget which brings up the ROS console.
+
+    :param context: The plugin context to create the monitor in.
+    :type context: qt_gui.plugin_context.PluginContext
+    """
     def __init__(self, context):
         super(ConsoleDashWidget, self).__init__()
         self.setObjectName('Console')
