@@ -31,7 +31,7 @@ class Dashboard(Plugin):
             self._main_widget.addSeparator()
 
         # Display the dashboard
-        context.add_widget(self._main_widget)
+        context.add_toolbar(self._main_widget)
 
     def setup(self, context):
         """Called during ``__init__`` Subclasses should do initialization here.
