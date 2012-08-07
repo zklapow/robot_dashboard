@@ -57,7 +57,7 @@ class MenuDashWidget(QPushButton):
     :param icon: The icon to display in this widgets button.
     :type icon: str
     """
-    sig_state = pyqtSignal(int, int)
+    sig_state = pyqtSignal(int)
     def __init__(self, context, name, *args, **kwargs):
         super(MenuDashWidget, self).__init__()
         self.name = name
@@ -103,7 +103,7 @@ class ButtonDashWidget(QPushButton):
     :param icon: The icon to display in this widgets button.
     :type icon: str
     """
-    sig_state = pyqtSignal(int, int)
+    sig_state = pyqtSignal(int)
     def __init__(self, context, name, cb = None, icon = None, states = None):
         QPushButton.__init__(self)
         self.name = name
