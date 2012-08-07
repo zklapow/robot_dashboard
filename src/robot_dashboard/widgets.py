@@ -28,7 +28,7 @@ Widget Types
 import roslib;roslib.load_manifest('robot_dashboard')
 from robot_monitor import RobotMonitor
 
-from .util import set_state
+from .util import make_stately
 
 from rqt_console.console_widget import ConsoleWidget
 from rqt_console.console_subscriber import ConsoleSubscriber
@@ -57,15 +57,13 @@ class MenuDashWidget(QPushButton):
     :param icon: The icon to display in this widgets button.
     :type icon: str
     """
-    sig_state = pyqtSignal(int)
+    sig_state = pyqtSignal(int, int)
     def __init__(self, context, name, *args, **kwargs):
         super(MenuDashWidget, self).__init__()
         self.name = name
         self.setObjectName(self.name)
 
-        self._update_state = set_state(self)
-        self.update_state = lambda state: self.sig_state.emit(int(state))
-        self.sig_state.connect(self._update_state)
+        make_stately(self, signal = self.sig_state)
 
         self._menu = QMenu()
 
@@ -105,7 +103,7 @@ class ButtonDashWidget(QPushButton):
     :param icon: The icon to display in this widgets button.
     :type icon: str
     """
-    sig_state = pyqtSignal(int)
+    sig_state = pyqtSignal(int, int)
     def __init__(self, context, name, cb = None, icon = None, states = None):
         QPushButton.__init__(self)
         self.name = name
@@ -114,10 +112,7 @@ class ButtonDashWidget(QPushButton):
         if states is not None:
             self.states = states
 
-        #TODO: Encapsulate this functionality
-        self._update_state = set_state(self)
-        self.update_state = lambda state: self.sig_state.emit(int(state))
-        self.sig_state.connect(self._update_state)
+        make_stately(self, signal=self.sig_state)
 
         if icon:
             self._icon = QIcon(os.path.join(image_path, icon))

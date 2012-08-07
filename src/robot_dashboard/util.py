@@ -1,4 +1,9 @@
-def set_state(self):
+def make_stately(self, signal = None):
+    if not hasattr(self, 'sig_state') and not signal:
+        raise(TypeError("make_stately requires the object to have a sig_state or for a signal to be provided"))
+    elif not signal:
+        signal = self.sig_state
+
     def ret(state):
         """This is the override point for customizing states.
         By default it simply sets the widgets stylesheet to one selected from ``self.states``. However you can do whatever you like here.
@@ -22,4 +27,7 @@ def set_state(self):
                "#%s {background-color: yellow}"%self.objectName(),
                "#%s {background-color: red}"%self.objectName()]
         self.setStyleSheet(self.states[state])
-    return ret
+
+    self._update_state = ret
+    self.update_state = lambda state: signal.emit(int(state))
+    signal.connect(self._update_state)
