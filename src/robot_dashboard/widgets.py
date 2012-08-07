@@ -127,9 +127,12 @@ class MonitorDashWidget(QPushButton):
     :param context: The plugin context to create the monitor in.
     :type context: qt_gui.plugin_context.PluginContext
     """
+    sig_state = pyqtSignal(int)
     def __init__(self, context):
         super(MonitorDashWidget, self).__init__()
         self.setObjectName("MonitorWidget")
+
+        make_stately(self)
 
         self._monitor = RobotMonitor('diagnostics_agg')
         self._monitor.destroyed.connect(self._monitor_close)
@@ -150,7 +153,7 @@ class MonitorDashWidget(QPushButton):
         self.clicked.connect(self._show_monitor)
 
         self.state = 0
-        #self.setStyleSheet('QPushButton {background-color: green; border: none;}')
+        self.update_state(self.state)
 
     def _show_monitor(self):
         print(self._monitor)
@@ -159,7 +162,7 @@ class MonitorDashWidget(QPushButton):
 
     def err(self, msg):
         self.state = 2
-        #self.setStyleSheet('QPushButton {background-color:Red; border: none;}')
+        self.update_state(self.state)
 
         # Restart the timer when a new state arrives
         self._timer.start()
@@ -167,14 +170,14 @@ class MonitorDashWidget(QPushButton):
     def warn(self, msg):
         if self.state <= 1:
             self.state = 1
-            #self.setStyleSheet('QPushButton {background-color:Yellow; border: none;}')
+            self.update_state(self.state)
 
             # Restaert the timer when a new state arrives
             self._timer.start()
 
     def ok(self):
         self.state = 0
-        #self.setStyleSheet('QPushButton {background-color:Green; border: none;}')
+        self.update_state(self.state)
 
     def _monitor_close(self):
         print("Monitor closed")
