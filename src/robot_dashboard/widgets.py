@@ -28,13 +28,15 @@ Widget Types
 import roslib;roslib.load_manifest('robot_dashboard')
 from robot_monitor import RobotMonitor
 
+from .util import set_state
+
 from rqt_console.console_widget import ConsoleWidget
 from rqt_console.console_subscriber import ConsoleSubscriber
 from rqt_console.message_data_model import MessageDataModel
 from rqt_console.message_proxy_model import MessageProxyModel
 
 from QtCore import pyqtSignal, QMutex, QTimer, QSize
-from QtGui import QPushButton, QMenu, QIcon
+from QtGui import QPushButton, QMenu, QIcon, QWidget, QVBoxLayout, QColor
 
 import os.path
 import rospkg
@@ -73,6 +75,7 @@ class MenuDashWidget(QPushButton):
 
         self.setMenu(self._menu)
 
+        # Remove the stupid menu indicator
         self.setStyleSheet('QPushButton::menu-indicator {image: url(none.jpg);}')
 
     def add_action(self, name, callback):
@@ -97,15 +100,19 @@ class ButtonDashWidget(QPushButton):
     :param icon: The icon to display in this widgets button.
     :type icon: str
     """
-    def __init__(self, context, name, cb = None, icon = None):
-        super(ButtonDashWidget, self).__init__()
+    sig_up = pyqtSignal(int)
+    def __init__(self, context, name, cb = None, icon = None, states = None):
+        QPushButton.__init__(self)
         self.name = name
         self.setObjectName(self.name)
 
-        # The default states: 0 = OK, 1 = WARN, 2 = ERR
-        self.states = ["QPushButton#%s {background-color: green}"%self.name, 
-                       "QPushButton#%s {background-color: yellow}"%self.name,
-                       "QPushButton#%s {background-color: red}"%self.name]
+        if states is not None:
+            self.states = states
+
+        #TODO: Encapsulate this functionality
+        self._update_state = set_state(self)
+        self.update_state = lambda state: self.sig_up.emit(int(state))
+        self.sig_up.connect(self._update_state)
 
         if icon:
             self._icon = QIcon(os.path.join(image_path, icon))
@@ -113,21 +120,6 @@ class ButtonDashWidget(QPushButton):
         if cb:
             self.clicked.connect(cb)
 
-    def update_state(self, state):
-        """This is the override point for customizing a buttons state.
-        By default it simply sets the widgets stylesheet to one selected from ``self.states``. However you can do whatever you like here.
-        For example you could change the widgets icon::
-            def update_state(self, state):
-                if state == 1:
-                    self._icon = QIcon(os.path.join(image_path, 'warn.svg'))
-                    self.setIcon(self._icon)
-
-        :param state: The state to be set.
-        :type state: int
-        """
-        self._state = state
-
-        self.setStyleSheet(self.states[state])
 
 class MonitorDashWidget(QPushButton):
     """A widget which brings up the robot_monitor.
