@@ -156,9 +156,7 @@ class MonitorDashWidget(QPushButton):
         self.update_state(self.state)
 
     def _show_monitor(self):
-        print(self._monitor)
-        #self.context.add_widget(self._monitor)
-        self._monitor.show()
+        self.context.add_widget(self._monitor)
 
     def err(self, msg):
         self.state = 2
@@ -180,7 +178,8 @@ class MonitorDashWidget(QPushButton):
         self.update_state(self.state)
 
     def _monitor_close(self):
-        print("Monitor closed")
+        self._monitor.close()
+        self._monitor =None
 
 class ConsoleDashWidget(QPushButton):
     """A widget which brings up the ROS console.
@@ -239,3 +238,4 @@ class ConsoleDashWidget(QPushButton):
 
     def _console_destroyed(self):
         self._console = None
+
