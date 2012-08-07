@@ -57,10 +57,15 @@ class MenuDashWidget(QPushButton):
     :param icon: The icon to display in this widgets button.
     :type icon: str
     """
+    sig_state = pyqtSignal(int)
     def __init__(self, context, name, *args, **kwargs):
         super(MenuDashWidget, self).__init__()
         self.name = name
         self.setObjectName(self.name)
+
+        self._update_state = set_state(self)
+        self.update_state = lambda state: self.sig_state.emit(int(state))
+        self.sig_state.connect(self._update_state)
 
         self._menu = QMenu()
 
@@ -100,7 +105,7 @@ class ButtonDashWidget(QPushButton):
     :param icon: The icon to display in this widgets button.
     :type icon: str
     """
-    sig_up = pyqtSignal(int)
+    sig_state = pyqtSignal(int)
     def __init__(self, context, name, cb = None, icon = None, states = None):
         QPushButton.__init__(self)
         self.name = name
@@ -111,8 +116,8 @@ class ButtonDashWidget(QPushButton):
 
         #TODO: Encapsulate this functionality
         self._update_state = set_state(self)
-        self.update_state = lambda state: self.sig_up.emit(int(state))
-        self.sig_up.connect(self._update_state)
+        self.update_state = lambda state: self.sig_state.emit(int(state))
+        self.sig_state.connect(self._update_state)
 
         if icon:
             self._icon = QIcon(os.path.join(image_path, icon))
