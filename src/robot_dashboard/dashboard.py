@@ -9,13 +9,20 @@ from qt_gui.plugin import Plugin
 
 class Dashboard(Plugin):
     """Base class from which dashboards should inherit."""
-    def __init__(self, context):
+    def __init__(self, context, name = None):
         super(Dashboard, self).__init__(context)
         self.context = context
+
+        if not name:
+            self.name = 'Dashboard'
+        else:
+            self.name = name
+
         self.setup(context)
 
         self._main_widget = QToolBar()
         self._main_widget.setIconSize(QSize(80, 80))
+        self._main_widget.setObjectName(self.name)
         widgets = self.get_widgets()
 
         layout = QHBoxLayout()
@@ -42,7 +49,7 @@ class Dashboard(Plugin):
         :param context: The plugin context
         :type context: qt_gui.plugin.Plugin
         """
-        self.setObjectName('Dashboard')
+        pass
 
     def get_widgets(self):
         """
