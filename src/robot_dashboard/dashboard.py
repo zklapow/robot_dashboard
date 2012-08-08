@@ -27,7 +27,7 @@ class Dashboard(Plugin):
 
         layout = QHBoxLayout()
 
-        for k, v in widgets.iteritems():
+        for v in widgets:
             for i in v:
                 try:
                     #i.setFixedSize(100, 100)
@@ -55,6 +55,6 @@ class Dashboard(Plugin):
         """
         Most of the dashboard customization should be done here. If this function is not overriden the dashboard will display nothing.
 
-        :returns: Dictionary of lists containing dashboard widgets.
+        :returns: List of lists containing dashboard widgets.
         """
-        return {}
+        return []
