@@ -36,7 +36,7 @@ from rqt_console.message_data_model import MessageDataModel
 from rqt_console.message_proxy_model import MessageProxyModel
 
 from QtCore import pyqtSignal, QMutex, QTimer, QSize
-from QtGui import QPushButton, QMenu, QIcon, QWidget, QVBoxLayout, QColor
+from QtGui import QPushButton, QMenu, QIcon, QWidget, QVBoxLayout, QColor, QProgressBar
 
 import os.path
 import rospkg
@@ -239,3 +239,30 @@ class ConsoleDashWidget(QPushButton):
     def _console_destroyed(self):
         self._console = None
 
+class BatteryDashWidget(QProgressBar):
+    perc_sig = pyqtSignal(float)
+    def __init__(self, context, name='Battery'):
+        super(BatteryDashWidget, self).__init__()
+        self.setObjectName(name)
+
+        self.perc_sig.connect(self._update_perc)
+        self.perc_sig.emit(0.0)
+
+        self.setRange(0, 100)
+        self.setValue(50)
+
+        self.setMaximumSize(75, 25)
+
+    def update_perc(self, val):
+        self.perc_sig.emit(val)
+
+    def _update_perc(self, val):
+        self._perc = val
+        self.setValue(val)
+
+    def update_time(self, val):
+        self.time_remaining = val
+        self.setStatusTip("%s remaining"%val)
+
+    def update_plug(self, state):
+        self.plugged_in = state
