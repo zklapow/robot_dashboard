@@ -23,6 +23,7 @@ class Dashboard(Plugin):
         self._main_widget = QToolBar()
         self._main_widget.setIconSize(QSize(80, 80))
         self._main_widget.setObjectName(self.name)
+        self._main_widget.on_close.connect(self.on_close)
         widgets = self.get_widgets()
 
         layout = QHBoxLayout()
@@ -48,6 +49,11 @@ class Dashboard(Plugin):
 
         :param context: The plugin context
         :type context: qt_gui.plugin.Plugin
+        """
+        pass
+
+    def on_close(self):
+        """Called when the toolbar is closed by Qt. Cleanup shoudl be done here.
         """
         pass
 
