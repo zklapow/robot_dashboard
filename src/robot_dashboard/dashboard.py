@@ -12,13 +12,13 @@ class Dashboard(Plugin):
     def __init__(self, context, name = None):
         super(Dashboard, self).__init__(context)
         self.context = context
+        
+        self.setup(context)
 
         if not name:
             self.name = 'Dashboard'
         else:
             self.name = name
-
-        self.setup(context)
 
         self._main_widget = QToolBar()
         self._main_widget.setIconSize(QSize(80, 80))
