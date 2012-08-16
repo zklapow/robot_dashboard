@@ -54,7 +54,7 @@ class IconToolButton(QToolButton):
     """This is the base class for all widgets. It provides state and icon switching support as well as convinience functions for creating icons.
     """
     state_changed = pyqtSignal(int)
-    def __init__(self, name):
+    def __init__(self):
         super(IconToolButton, self).__init__()
         self.state_changed.connect(self._update_state)
         self.pressed.connect(self._pressed)
@@ -72,6 +72,13 @@ class IconToolButton(QToolButton):
         self.setIcon(self._icons[self.state])
 
     def update_state(self, state):
+        """Set the state of this button. This will also update the icon for the button based on the ``self._icons`` list
+
+        .. note:: States must not be greater than the length of ``self._icons`` unless you implement a custom ``self._update_state``. 
+
+        :param state: The state to set.
+        :type state: int
+        """
         self.state = state
         self.state_changed.emit(self.state)
 
@@ -82,6 +89,12 @@ class IconToolButton(QToolButton):
         self.setIcon(self._icons[self.state])
 
     def load_image(self, path):
+        """Convinience function to help with loading images.
+        Path can either be specified as absolute paths or relative to the robot_dashboard/images directory
+        
+        :param path: The path or name of the image.
+        :type path: str
+        """
         if os.path.exists(path):
             return Image.open(path)
         elif os.path.exists(os.path.join(image_path, path)):
@@ -90,6 +103,14 @@ class IconToolButton(QToolButton):
             raise(Exception("Could not load %s"% path))
 
     def overlay(self, image, name):
+        """Convinience function for creating icons with overlays.
+        Overlay path can either be specified as absolute paths or relative to the robot_dashboard/images directory.
+
+        :param image: Image to overlay onto.
+        :type image: PIL.Image.Image
+        :param name: Path of the overlay.
+        :type name: str
+        """
         over = self.load_image(name)
         return Image.composite(over, image, over) 
 
@@ -191,7 +212,7 @@ class MonitorDashWidget(IconToolButton):
     err= pyqtSignal()
     warn = pyqtSignal()
     def __init__(self, context):
-        super(MonitorDashWidget, self).__init__('Monitor Widget')
+        super(MonitorDashWidget, self).__init__()
         self.setObjectName("MonitorWidget")
 
         self._monitor = None
