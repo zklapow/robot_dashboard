@@ -26,17 +26,22 @@ Widget Types
 """
 
 import roslib;roslib.load_manifest('robot_dashboard')
+import rospy
 from robot_monitor import RobotMonitor
 
-from .util import make_stately
+from .util import make_stately, make_icon
 
 from rqt_console.console_widget import ConsoleWidget
 from rqt_console.console_subscriber import ConsoleSubscriber
 from rqt_console.message_data_model import MessageDataModel
 from rqt_console.message_proxy_model import MessageProxyModel
+from diagnostic_msgs.msg import DiagnosticArray
 
 from QtCore import pyqtSignal, QMutex, QTimer, QSize
-from QtGui import QPushButton, QMenu, QIcon, QWidget, QVBoxLayout, QColor, QProgressBar
+from QtGui import QPushButton, QMenu, QIcon, QWidget, QVBoxLayout, QColor, QProgressBar, QToolButton
+
+from PIL import Image
+from PIL.ImageQt import ImageQt
 
 import os.path
 import rospkg
@@ -44,6 +49,49 @@ import rospkg
 rp = rospkg.RosPack()
 
 image_path = os.path.join(rp.get_path('robot_dashboard'), 'images')
+
+class IconToolButton(QToolButton):
+    """This is the base class for all widgets. It provides state and icon switching support as well as convinience functions for creating icons.
+    """
+    state_changed = pyqtSignal(int)
+    def __init__(self, name):
+        super(IconToolButton, self).__init__()
+        self.state_changed.connect(self._update_state)
+        self.pressed.connect(self._pressed)
+        self.released.connect(self._released)
+
+        self.setStyleSheet('QToolButton {border: none;}')
+
+        # List of QIcons to use for each state
+        self._icons = []
+        self._clicked_icons = []
+
+        self.state = 0
+
+    def _update_state(self, state):
+        self.setIcon(self._icons[self.state])
+
+    def update_state(self, state):
+        self.state = state
+        self.state_changed.emit(self.state)
+
+    def  _pressed(self):
+        self.setIcon(self._clicked_icons[self.state])
+
+    def _released(self):
+        self.setIcon(self._icons[self.state])
+
+    def load_image(self, path):
+        if os.path.exists(path):
+            return Image.open(path)
+        elif os.path.exists(os.path.join(image_path, path)):
+            return Image.open(os.path.join(image_path, path)) 
+        else:
+            raise(Exception("Could not load %s"% path))
+
+    def overlay(self, image, name):
+        over = self.load_image(name)
+        return Image.composite(over, image, over) 
 
 class MenuDashWidget(QPushButton):
     """A widget which displays a pop-up menu when clicked
@@ -72,8 +120,15 @@ class MenuDashWidget(QPushButton):
 
         icon = kwargs.get('icon', None)
 
+        # Check for icons existence
         if icon:
-            self._icon = QIcon(os.path.join(image_path, icon))
+            if os.path.exists(icon):
+                self._icon = QIcon(icon)
+            elif os.path.exists(os.path.join(image_path, icon)):
+                self._icon = QIcon(os.path.join(image_path, icon))
+            else:
+                raise(Exception("Could not create icon! %s does not exist."%icon))
+
             self.setIcon(self._icon)
 
         self.setMenu(self._menu)
@@ -127,23 +182,23 @@ class ButtonDashWidget(QPushButton):
         pass
 
 
-class MonitorDashWidget(QPushButton):
+class MonitorDashWidget(IconToolButton):
     """A widget which brings up the robot_monitor.
 
     :param context: The plugin context to create the monitor in.
     :type context: qt_gui.plugin_context.PluginContext
     """
-    sig_state = pyqtSignal(int)
+    err= pyqtSignal()
+    warn = pyqtSignal()
     def __init__(self, context):
-        super(MonitorDashWidget, self).__init__()
+        super(MonitorDashWidget, self).__init__('Monitor Widget')
         self.setObjectName("MonitorWidget")
 
-        make_stately(self)
-
-        self._monitor = RobotMonitor('diagnostics_agg')
-        self._monitor.destroyed.connect(self._monitor_close)
-        self._monitor.sig_err.connect(self.err)
-        self._monitor.sig_warn.connect(self.warn)
+        self._monitor = None
+        self._monitor_sub = rospy.Subscriber('/diagnostics_agg', DiagnosticArray, self._monitor_cb)
+        self._last_msg_time = rospy.Time.now()
+        self.err.connect(self._error)
+        self.warn.connect(self._warning)
 
         # Only display a state for 10 sec
         self._timer = QTimer()
@@ -151,8 +206,23 @@ class MonitorDashWidget(QPushButton):
         self._timer.setInterval(10000)
         self._timer.start()
 
-        self.icon = QIcon(os.path.join(image_path, 'wrench.svg'))
-        self.setIcon(self.icon)
+        self._last_update = rospy.Time.now()
+
+        # Unclicked icons
+        self._icon = self.load_image('diagnostics.png')
+        self._warn_icon = self.overlay(self._icon, 'warn-overlay.png')
+        self._err_icon = self.overlay(self._icon, 'err-overlay.png')
+        self._stale_icon = self.overlay(self._icon, 'stale-overlay.png')
+        self._icons = [make_icon(self._icon), make_icon(self._warn_icon), make_icon(self._err_icon), make_icon(self._stale_icon)]
+
+        # Clicked icons
+        self._icon_click = self.load_image('diagnostics-click.png')
+        self._warn_click = self.overlay(self._icon_click, 'warn-overlay.png')
+        self._err_click = self.overlay(self._icon_click, 'err-overlay.png')
+        self._stale_click = self.overlay(self._icon_click, 'stale-overlay.png')
+        self._clicked_icons = [make_icon(self._icon_click), make_icon(self._warn_click), make_icon(self._err_click), make_icon(self._stale_click)]
+
+        self.setIcon(make_icon(self._icon))
 
         self.context = context
 
@@ -162,30 +232,50 @@ class MonitorDashWidget(QPushButton):
         self.update_state(self.state)
 
     def _show_monitor(self):
+        if self._monitor is None:
+            self._monitor = RobotMonitor('diagnostics_agg')
+            self._monitor.destroyed.connect(self._monitor_close)
         self.context.add_widget(self._monitor)
 
-    def err(self, msg):
-        self.state = 2
-        self.update_state(self.state)
+    def _monitor_cb(self, msg):
+        self._last_msg_time = rospy.Time.now()
+        warn = 0
+        err = 0
+        for status in msg.status:
+            if status.level == status.WARN:
+                warn = warn + 1
+            elif status.level == status.ERROR:
+                err = err + 1
+
+        if err > 0:
+            self.err.emit()
+        elif warn > 0:
+            self.warn.emit()
+
+    def _error(self):
+        self.update_state(2)
 
         # Restart the timer when a new state arrives
         self._timer.start()
 
-    def warn(self, msg):
+    def _warning(self):
         if self.state <= 1:
-            self.state = 1
-            self.update_state(self.state)
+            self.update_state(1)
 
             # Restaert the timer when a new state arrives
             self._timer.start()
 
     def ok(self):
-        self.state = 0
-        self.update_state(self.state)
+        # Each time the timer runs we are either ok or stale
+        diff = rospy.Time.now() - self._last_msg_time
+        if diff.to_sec() > 5:
+            self.update_state(3)
+        else:
+            self.update_state(0)
 
     def _monitor_close(self):
         self._monitor.close()
-        self._monitor =None
+        self._monitor = None
 
 class ConsoleDashWidget(QPushButton):
     """A widget which brings up the ROS console.

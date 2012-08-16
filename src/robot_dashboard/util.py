@@ -96,6 +96,6 @@ def dasherr(msg, obj, title = 'Error'):
 
     obj._message_box = box
 
-def icon_from_image(image):
+def make_icon(image):
     qim = ImageQt(image)
     return QIcon(QPixmap.fromImage(qim))
