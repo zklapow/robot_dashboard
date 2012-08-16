@@ -54,17 +54,38 @@ class IconToolButton(QToolButton):
     """This is the base class for all widgets. It provides state and icon switching support as well as convinience functions for creating icons.
     """
     state_changed = pyqtSignal(int)
-    def __init__(self):
+    def __init__(self, name, icons = [], clicked_icons = [], icon = '', clicked_icon = ''):
         super(IconToolButton, self).__init__()
+        self.name = name
+        self.setObjectName(self.name)
+
         self.state_changed.connect(self._update_state)
         self.pressed.connect(self._pressed)
         self.released.connect(self._released)
 
         self.setStyleSheet('QToolButton {border: none;}')
 
+        # If the icon argument was specificied, build the default icon states
+        if len(icons) == 0 and icon:
+            self._icon = self.load_image(icon) 
+            self._warn_icon = self.overlay(self._icon, 'warn-overlay.png')
+            self._err_icon = self.overlay(self._icon, 'err-overlay.png')
+            self._stale_icon = self.overlay(self._icon, 'stale-overlay.png')
+
+            self._icon_click = self.load_image(clicked_icon)
+            self._warn_click = self.overlay(self._icon_click, 'warn-overlay.png')
+            self._err_click = self.overlay(self._icon_click, 'err-overlay.png')
+            self._stale_click = self.overlay(self._icon_click, 'stale-overlay.png')
+
+            icons = [make_icon(self._icon), make_icon(self._warn_icon), make_icon(self._err_icon), make_icon(self._stale_icon)]
+            clicked_icons = [make_icon(self._icon_click), make_icon(self._warn_click), make_icon(self._err_click), make_icon(self._stale_click)] 
+
         # List of QIcons to use for each state
-        self._icons = []
-        self._clicked_icons = []
+        self._icons = icons
+        self._clicked_icons = clicked_icons
+
+        if not len(self._icons) == len(self._clicked_icons):
+            rospy.logwarn("%s has a mismatched number of icons and clicked states"%self.name)
 
         self.state = 0
 
@@ -167,42 +188,6 @@ class MenuDashWidget(QPushButton):
         """
         return self._menu.addAction(name, callback)
 
-class ButtonDashWidget(QPushButton):
-    """A simple customizable push button widget.
-
-    :param context: The plugin context to create the widget in.
-    :type context: qt_gui.plugin_context.PluginContext
-    :param name: The name to give this widget.
-    :type name: str
-    :param cb: A function to be called when this button is clicked.
-    :type cb: callable
-    :param icon: The icon to display in this widgets button.
-    :type icon: str
-    """
-    sig_state = pyqtSignal(int)
-    def __init__(self, context, name, cb = None, icon = None, states = None):
-        QPushButton.__init__(self)
-        self.name = name
-        self.setObjectName(self.name)
-
-        self.clicked.connect(self.on_click)
-
-        if states is not None:
-            self.states = states
-
-        make_stately(self, signal=self.sig_state)
-
-        if icon:
-            self._icon = QIcon(os.path.join(image_path, icon))
-            self.setIcon(self._icon)
-        if cb:
-            self.clicked.connect(cb)
-
-    def on_click(self):
-        """Called when the button is clicked."""
-        pass
-
-
 class MonitorDashWidget(IconToolButton):
     """A widget which brings up the robot_monitor.
 
@@ -212,8 +197,7 @@ class MonitorDashWidget(IconToolButton):
     err= pyqtSignal()
     warn = pyqtSignal()
     def __init__(self, context):
-        super(MonitorDashWidget, self).__init__()
-        self.setObjectName("MonitorWidget")
+        super(MonitorDashWidget, self).__init__('MonitorWidget', icon='diagnostics.png', clicked_icon = 'diagnostics-click.png')
 
         self._monitor = None
         self._monitor_sub = rospy.Subscriber('/diagnostics_agg', DiagnosticArray, self._monitor_cb)
@@ -229,24 +213,7 @@ class MonitorDashWidget(IconToolButton):
 
         self._last_update = rospy.Time.now()
 
-        # Unclicked icons
-        self._icon = self.load_image('diagnostics.png')
-        self._warn_icon = self.overlay(self._icon, 'warn-overlay.png')
-        self._err_icon = self.overlay(self._icon, 'err-overlay.png')
-        self._stale_icon = self.overlay(self._icon, 'stale-overlay.png')
-        self._icons = [make_icon(self._icon), make_icon(self._warn_icon), make_icon(self._err_icon), make_icon(self._stale_icon)]
-
-        # Clicked icons
-        self._icon_click = self.load_image('diagnostics-click.png')
-        self._warn_click = self.overlay(self._icon_click, 'warn-overlay.png')
-        self._err_click = self.overlay(self._icon_click, 'err-overlay.png')
-        self._stale_click = self.overlay(self._icon_click, 'stale-overlay.png')
-        self._clicked_icons = [make_icon(self._icon_click), make_icon(self._warn_click), make_icon(self._err_click), make_icon(self._stale_click)]
-
-        self.setIcon(make_icon(self._icon))
-
         self.context = context
-
         self.clicked.connect(self._show_monitor)
 
         self.state = 0
@@ -305,8 +272,7 @@ class ConsoleDashWidget(IconToolButton):
     :type context: qt_gui.plugin_context.PluginContext
     """
     def __init__(self, context):
-        super(ConsoleDashWidget, self).__init__()
-        self.setObjectName('Console')
+        super(ConsoleDashWidget, self).__init__('ConsoleWidget')
 
         # TODO: Console should have more icons and track state
         self._icon = self.load_image('console.png')
@@ -364,8 +330,7 @@ class ConsoleDashWidget(IconToolButton):
 
 class BatteryDashWidget(IconToolButton):
     def __init__(self, context, name='Battery'):
-        super(BatteryDashWidget, self).__init__()
-        self.setObjectName(name)
+        super(BatteryDashWidget, self).__init__(name)
         self.setEnabled(False)
 
         self.setStyleSheet('QToolButton:disabled {}')
