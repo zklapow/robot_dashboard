@@ -298,7 +298,7 @@ class MonitorDashWidget(IconToolButton):
         self._monitor.close()
         self._monitor = None
 
-class ConsoleDashWidget(QPushButton):
+class ConsoleDashWidget(IconToolButton):
     """A widget which brings up the ROS console.
 
     :param context: The plugin context to create the monitor in.
@@ -308,8 +308,14 @@ class ConsoleDashWidget(QPushButton):
         super(ConsoleDashWidget, self).__init__()
         self.setObjectName('Console')
 
-        self._icon = QIcon(os.path.join(image_path, 'chat.svg'))
-        self.setIcon(self._icon)
+        # TODO: Console should have more icons and track state
+        self._icon = self.load_image('console.png')
+        self._icon_clicked = self.load_image('console-click.png')
+
+        self._icons = [make_icon(self._icon)]
+        self._clicked_icons = [make_icon(self._icon_clicked)]
+
+        self.setIcon(make_icon(self._icon))
 
         self._datamodel = MessageDataModel()
         self._proxymodel = MessageProxyModel()
@@ -356,30 +362,35 @@ class ConsoleDashWidget(QPushButton):
     def _console_destroyed(self):
         self._console = None
 
-class BatteryDashWidget(QProgressBar):
-    perc_sig = pyqtSignal(float)
+class BatteryDashWidget(IconToolButton):
     def __init__(self, context, name='Battery'):
         super(BatteryDashWidget, self).__init__()
         self.setObjectName(name)
+        self.setEnabled(False)
 
-        self.perc_sig.connect(self._update_perc)
-        self.perc_sig.emit(0.0)
+        self.setStyleSheet('QToolButton:disabled {}')
 
-        self.setRange(0, 100)
-        self.setValue(50)
+        self._icons = []
+        self._charge_icons = []
 
-        self.setMaximumSize(75, 25)
+        for x in range(1, 6):
+            self._icons.append(make_icon(self.load_image('battery-%s.png'%(x*20)), 1))
+            self._charge_icons.append(make_icon(self.load_image('battery-charge-%s.png'%(x*20)), 1))
+
+        self.charging = False
+        self.update_perc(0)
 
     def update_perc(self, val):
-        self.perc_sig.emit(val)
+        state = round(val/20)
+        self.update_state(state)
 
-    def _update_perc(self, val):
-        self._perc = val
-        self.setValue(val)
+    def _update_state(self, state):
+        if self.charging:
+            self.setIcon(self._charge_icons[state])
+        else:
+            self.setIcon(self._icons[state])
 
     def update_time(self, val):
         self.time_remaining = val
         self.setStatusTip("%s remaining"%val)
 
-    def update_plug(self, state):
-        self.plugged_in = state
