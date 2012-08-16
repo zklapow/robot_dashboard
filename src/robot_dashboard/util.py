@@ -1,3 +1,9 @@
+import roslib;roslib.load_manifest('robot_dashboard')
+import rospy
+
+from QtGui import QMessageBox, QIcon, QPixmap
+from PIL.ImageQt import ImageQt
+
 def make_stately(self, signal = None):
     if not hasattr(self, 'sig_state') and not signal:
         raise(TypeError("make_stately requires the object to have a sig_state or for a signal to be provided"))
@@ -28,6 +34,68 @@ def make_stately(self, signal = None):
                "#%s {background-color: red}"%self.objectName()]
         self.setStyleSheet(self.states[state])
 
-    self._update_state = ret
+    if not hasattr(self, '_update_state'):
+        self._update_state = ret
     self.update_state = lambda state: signal.emit(int(state))
     signal.connect(self._update_state)
+
+def dashinfo(msg, obj, title = 'Info'):
+    """Logs a message with ``rospy.loginfo`` and displays a ``QMessageBox`` to the user
+
+    :param msg: Message to display.
+    :type msg: str
+    :param obj: Parent object for the ``QMessageBox``
+    :type obj: QObject
+    :param title: An optional title for the `QMessageBox``
+    :type title: str
+    """
+    rospy.loginfo(msg)
+
+    box = QMessageBox()
+    box.setText(msg)
+    box.setWindowTitle(title)
+    box.show()
+
+    obj._message_box = box
+
+def dashwarn(msg, obj, title = 'Warning'):
+    """Logs a message with ``rospy.logwarn`` and displays a ``QMessageBox`` to the user
+
+    :param msg: Message to display.
+    :type msg: str
+    :param obj: Parent object for the ``QMessageBox``
+    :type obj: QObject
+    :param title: An optional title for the `QMessageBox``
+    :type title: str
+    """
+    rospy.logwarn(msg)
+
+    box = QMessageBox()
+    box.setText(msg)
+    box.setWindowTitle(title)
+    box.show()
+
+    obj._message_box = box
+
+def dasherr(msg, obj, title = 'Error'):
+    """Logs a message with ``rospy.logerr`` and displays a ``QMessageBox`` to the user
+
+    :param msg: Message to display.
+    :type msg: str
+    :param obj: Parent object for the ``QMessageBox``
+    :type obj: QObject
+    :param title: An optional title for the `QMessageBox``
+    :type title: str
+    """
+    rospy.logerr(msg)
+
+    box = QMessageBox()
+    box.setText(msg)
+    box.setWindowTitle(title)
+    box.show()
+
+    obj._message_box = box
+
+def icon_from_image(image):
+    qim = ImageQt(image)
+    return QIcon(QPixmap.fromImage(qim))
