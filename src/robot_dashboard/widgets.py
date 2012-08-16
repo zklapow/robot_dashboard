@@ -90,7 +90,10 @@ class IconToolButton(QToolButton):
         self.state = 0
 
     def _update_state(self, state):
-        self.setIcon(self._icons[self.state])
+        if self.isDown():
+            self.setIcon(self._clicked_icons[self.state])
+        else:
+            self.setIcon(self._icons[self.state])
 
     def update_state(self, state):
         """Set the state of this button. This will also update the icon for the button based on the ``self._icons`` list
