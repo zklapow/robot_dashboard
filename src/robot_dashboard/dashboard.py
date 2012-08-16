@@ -23,16 +23,16 @@ class Dashboard(Plugin):
         self._main_widget = QToolBar()
         self._main_widget.setIconSize(QSize(80, 80))
         self._main_widget.setObjectName(self.name)
-        self._main_widget.destroyed.connect(self.on_close)
         widgets = self.get_widgets()
 
         layout = QHBoxLayout()
 
+        self._widgets = []
         for v in widgets:
             for i in v:
                 try:
-                    #i.setFixedSize(100, 100)
                     self._main_widget.addWidget(i)
+                    self._widgets.append(i)
                 except:
                     raise(Exception("All widgets must be a subclass of QWidget!"))
 
@@ -52,8 +52,17 @@ class Dashboard(Plugin):
         """
         pass
 
-    def on_close(self):
-        """Called when the toolbar is closed by Qt. Cleanup shoudl be done here.
+    def shutdown_plugin(self):
+        """Called when the toolbar is closed by Qt.
+        """
+        for widget in self._widgets:
+            if hasattr(widget, 'close'):
+                widget.close()
+
+        self.shutdown_dashboard()
+
+    def shutdown_dashboard(self):
+        """Called after shutdown plugin, subclasses should do cleanup here, not in shutdown_plugin
         """
         pass
 

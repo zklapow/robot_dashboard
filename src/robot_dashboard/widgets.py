@@ -265,8 +265,13 @@ class MonitorDashWidget(IconToolButton):
             self.update_state(0)
 
     def _monitor_close(self):
-        self._monitor.close()
-        self._monitor = None
+        if self._monitor:
+            self._monitor.close()
+            self._monitor = None
+
+    def close(self):
+        self._monitor_close()
+        self._monitor_sub.unregister()
 
 class ConsoleDashWidget(IconToolButton):
     """A widget which brings up the ROS console.
