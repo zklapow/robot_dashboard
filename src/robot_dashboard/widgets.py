@@ -109,6 +109,8 @@ class ButtonDashWidget(QPushButton):
         self.name = name
         self.setObjectName(self.name)
 
+        self.clicked.connect(self.on_click)
+
         if states is not None:
             self.states = states
 
@@ -119,6 +121,10 @@ class ButtonDashWidget(QPushButton):
             self.setIcon(self._icon)
         if cb:
             self.clicked.connect(cb)
+
+    def on_click(self):
+        """Called when the button is clicked."""
+        pass
 
 
 class MonitorDashWidget(QPushButton):
