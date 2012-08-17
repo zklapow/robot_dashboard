@@ -138,7 +138,7 @@ class IconToolButton(QToolButton):
         over = self.load_image(name)
         return Image.composite(over, image, over) 
 
-class MenuDashWidget(QPushButton):
+class MenuDashWidget(IconToolButton):
     """A widget which displays a pop-up menu when clicked
 
     :param context: The plugin context to create the widget in.
@@ -150,36 +150,23 @@ class MenuDashWidget(QPushButton):
     :param icon: The icon to display in this widgets button.
     :type icon: str
     """
-    sig_state = pyqtSignal(int)
     def __init__(self, context, name, *args, **kwargs):
-        super(MenuDashWidget, self).__init__()
-        self.name = name
-        self.setObjectName(self.name)
+        super(MenuDashWidget, self).__init__(name, icon='more.png', clicked_icon = 'more-click.png')
+        self.setStyleSheet('QToolButton::menu-indicator {image: url(none.jpg);} QToolButton {border: none;}')
+        self.setPopupMode(QToolButton.InstantPopup)
+        self.update_state(0)
 
-        make_stately(self, signal = self.sig_state)
+        self.pressed.disconnect(self._pressed)
+        self.released.disconnect(self._released)
 
         self._menu = QMenu()
+        self._menu.aboutToHide.connect(self._released)
+        self._menu.aboutToShow.connect(self._pressed)
 
         for arg in args:
             self._menu.addAction(arg)
 
-        icon = kwargs.get('icon', None)
-
-        # Check for icons existence
-        if icon:
-            if os.path.exists(icon):
-                self._icon = QIcon(icon)
-            elif os.path.exists(os.path.join(image_path, icon)):
-                self._icon = QIcon(os.path.join(image_path, icon))
-            else:
-                raise(Exception("Could not create icon! %s does not exist."%icon))
-
-            self.setIcon(self._icon)
-
         self.setMenu(self._menu)
-
-        # Remove the stupid menu indicator
-        self.setStyleSheet('QPushButton::menu-indicator {image: url(none.jpg);}')
 
     def add_action(self, name, callback):
         """Add an action to the menu, and return the newly created action.
