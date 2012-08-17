@@ -58,7 +58,7 @@
 <span id="dashboard"></span><h1><tt class="xref py py-mod docutils literal"><span class="pre">dashboard</span></tt><a class="headerlink" href="#module-robot_dashboard.dashboard" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="robot_dashboard.dashboard.Dashboard">
-<em class="property">class </em><tt class="descclassname">robot_dashboard.dashboard.</tt><tt class="descname">Dashboard</tt><big>(</big><em>context</em><big>)</big><a class="reference internal" href="_modules/robot_dashboard/dashboard.html#Dashboard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#robot_dashboard.dashboard.Dashboard" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descclassname">robot_dashboard.dashboard.</tt><tt class="descname">Dashboard</tt><big>(</big><em>context</em>, <em>name=None</em><big>)</big><a class="reference internal" href="_modules/robot_dashboard/dashboard.html#Dashboard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#robot_dashboard.dashboard.Dashboard" title="Permalink to this definition">¶</a></dt>
 <dd><p>Base class from which dashboards should inherit.</p>
 <dl class="method">
 <dt id="robot_dashboard.dashboard.Dashboard.get_widgets">
@@ -68,7 +68,7 @@
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Dictionary of lists containing dashboard widgets.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">List of lists containing dashboard widgets.</td>
 </tr>
 </tbody>
 </table>
@@ -90,6 +90,18 @@
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="robot_dashboard.dashboard.Dashboard.shutdown_dashboard">
+<tt class="descname">shutdown_dashboard</tt><big>(</big><big>)</big><a class="headerlink" href="#robot_dashboard.dashboard.Dashboard.shutdown_dashboard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called after shutdown plugin, subclasses should do cleanup here, not in shutdown_plugin</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="robot_dashboard.dashboard.Dashboard.shutdown_plugin">
+<tt class="descname">shutdown_plugin</tt><big>(</big><big>)</big><a class="headerlink" href="#robot_dashboard.dashboard.Dashboard.shutdown_plugin" title="Permalink to this definition">¶</a></dt>
+<dd><p>Called when the toolbar is closed by Qt.</p>
 </dd></dl>
 
 </dd></dl>

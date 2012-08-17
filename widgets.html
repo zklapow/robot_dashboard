@@ -26,6 +26,7 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="robot_dashboard 0.1.0 documentation" href="index.html" />
+    <link rel="next" title="util" href="util.html" />
     <link rel="prev" title="dashboard" href="dashboard.html" /> 
   </head>
   <body>
@@ -38,6 +39,9 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="util.html" title="util"
+             accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="dashboard.html" title="dashboard"
              accesskey="P">previous</a> |</li>
@@ -69,48 +73,6 @@
 <div class="section" id="widget-types">
 <h2>Widget Types<a class="headerlink" href="#widget-types" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="robot_dashboard.widgets.ButtonDashWidget">
-<em class="property">class </em><tt class="descclassname">robot_dashboard.widgets.</tt><tt class="descname">ButtonDashWidget</tt><big>(</big><em>context</em>, <em>name</em>, <em>cb=None</em>, <em>icon=None</em><big>)</big><a class="reference internal" href="_modules/robot_dashboard/widgets.html#ButtonDashWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#robot_dashboard.widgets.ButtonDashWidget" title="Permalink to this definition">¶</a></dt>
-<dd><p>A simple customizable push button widget.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>context</strong> (<em>qt_gui.plugin_context.PluginContext</em>) &#8211; The plugin context to create the widget in.</li>
-<li><strong>name</strong> (<em>str</em>) &#8211; The name to give this widget.</li>
-<li><strong>cb</strong> (<em>callable</em>) &#8211; A function to be called when this button is clicked.</li>
-<li><strong>icon</strong> (<em>str</em>) &#8211; The icon to display in this widgets button.</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-<dl class="method">
-<dt id="robot_dashboard.widgets.ButtonDashWidget.update_state">
-<tt class="descname">update_state</tt><big>(</big><em>state</em><big>)</big><a class="reference internal" href="_modules/robot_dashboard/widgets.html#ButtonDashWidget.update_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#robot_dashboard.widgets.ButtonDashWidget.update_state" title="Permalink to this definition">¶</a></dt>
-<dd><p>This is the override point for customizing a buttons state.
-By default it simply sets the widgets stylesheet to one selected from <tt class="docutils literal"><span class="pre">self.states</span></tt>. However you can do whatever you like here.
-For example you could change the widgets icon:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="k">def</span> <span class="nf">update_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_icon</span> <span class="o">=</span> <span class="n">QIcon</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">image_path</span><span class="p">,</span> <span class="s">&#39;warn.svg&#39;</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">setIcon</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_icon</span><span class="p">)</span>
-</pre></div>
-</div>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>state</strong> (<em>int</em>) &#8211; The state to be set.</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="class">
 <dt id="robot_dashboard.widgets.ConsoleDashWidget">
 <em class="property">class </em><tt class="descclassname">robot_dashboard.widgets.</tt><tt class="descname">ConsoleDashWidget</tt><big>(</big><em>context</em><big>)</big><a class="reference internal" href="_modules/robot_dashboard/widgets.html#ConsoleDashWidget"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#robot_dashboard.widgets.ConsoleDashWidget" title="Permalink to this definition">¶</a></dt>
 <dd><p>A widget which brings up the ROS console.</p>
@@ -122,6 +84,82 @@ For example you could change the widgets icon:</p>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="class">
+<dt id="robot_dashboard.widgets.IconToolButton">
+<em class="property">class </em><tt class="descclassname">robot_dashboard.widgets.</tt><tt class="descname">IconToolButton</tt><big>(</big><em>name</em>, <em>icons=</em><span class="optional">[</span><span class="optional">]</span>, <em>clicked_icons=</em><span class="optional">[</span><span class="optional">]</span>, <em>icon=''</em>, <em>clicked_icon=''</em><big>)</big><a class="headerlink" href="#robot_dashboard.widgets.IconToolButton" title="Permalink to this definition">¶</a></dt>
+<dd><p>This is the base class for all widgets. It provides state and icon switching support as well as convenience functions for creating icons.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You must specify either <tt class="docutils literal"><span class="pre">icons</span></tt> and <tt class="docutils literal"><span class="pre">clicked_icons</span></tt> or <tt class="docutils literal"><span class="pre">icon</span></tt> and <tt class="docutils literal"><span class="pre">clicked_icon</span></tt>. Using icon and clicked icon will create a set of icons using the overlays in <tt class="docutils literal"><span class="pre">robot_dashboard/images</span></tt>.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>icons</strong> (<em>list</em>) &#8211; A list of icons for the states of this button.</li>
+<li><strong>clicked_icons</strong> (<em>list</em>) &#8211; A list of clicked state icons.</li>
+<li><strong>icon</strong> (<em>str</em>) &#8211; The base icon file path.</li>
+<li><strong>clicked_icon</strong> (<em>str</em>) &#8211; The base clicked icon file path.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="robot_dashboard.widgets.IconToolButton.load_image">
+<tt class="descname">load_image</tt><big>(</big><em>path</em><big>)</big><a class="headerlink" href="#robot_dashboard.widgets.IconToolButton.load_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience function to help with loading images.
+Path can either be specified as absolute paths or relative to the robot_dashboard/images directory</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) &#8211; The path or name of the image.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="robot_dashboard.widgets.IconToolButton.overlay">
+<tt class="descname">overlay</tt><big>(</big><em>image</em>, <em>name</em><big>)</big><a class="headerlink" href="#robot_dashboard.widgets.IconToolButton.overlay" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convenience function for creating icons with overlays.
+Overlay path can either be specified as absolute paths or relative to the robot_dashboard/images directory.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>image</strong> (<em>PIL.Image.Image</em>) &#8211; Image to overlay onto.</li>
+<li><strong>name</strong> (<em>str</em>) &#8211; Path of the overlay.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="robot_dashboard.widgets.IconToolButton.update_state">
+<tt class="descname">update_state</tt><big>(</big><em>state</em><big>)</big><a class="headerlink" href="#robot_dashboard.widgets.IconToolButton.update_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set the state of this button. This will also update the icon for the button based on the <tt class="docutils literal"><span class="pre">self._icons</span></tt> list</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">States must not be greater than the length of <tt class="docutils literal"><span class="pre">self._icons</span></tt> unless you implement a custom <tt class="docutils literal"><span class="pre">self._update_state</span></tt>.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>state</strong> (<em>int</em>) &#8211; The state to set.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -196,6 +234,9 @@ For example you could change the widgets icon:</p>
   <h4>Previous topic</h4>
   <p class="topless"><a href="dashboard.html"
                         title="previous chapter"><tt class="docutils literal docutils literal docutils literal"><span class="pre">dashboard</span></tt></a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="util.html"
+                        title="next chapter"><tt class="docutils literal docutils literal"><span class="pre">util</span></tt></a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="_sources/widgets.txt"
@@ -227,6 +268,9 @@ For example you could change the widgets icon:</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
+        <li class="right" >
+          <a href="util.html" title="util"
+             >next</a> |</li>
         <li class="right" >
           <a href="dashboard.html" title="dashboard"
              >previous</a> |</li>

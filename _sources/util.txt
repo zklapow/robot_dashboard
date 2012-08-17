@@ -1,0 +1,5 @@
+:mod:`util`
+==============
+
+.. automodule:: robot_dashboard.util
+    :members:
