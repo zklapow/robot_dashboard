@@ -13,6 +13,7 @@ Contents:
 
     dashboard
     widgets
+    util
 
 Indices and tables
 ==================

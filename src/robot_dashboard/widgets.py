@@ -29,7 +29,7 @@ import roslib;roslib.load_manifest('robot_dashboard')
 import rospy
 from robot_monitor import RobotMonitor
 
-from .util import make_stately, make_icon
+from .util import make_icon
 
 from rqt_console.console_widget import ConsoleWidget
 from rqt_console.console_subscriber import ConsoleSubscriber
@@ -51,7 +51,18 @@ rp = rospkg.RosPack()
 image_path = os.path.join(rp.get_path('robot_dashboard'), 'images')
 
 class IconToolButton(QToolButton):
-    """This is the base class for all widgets. It provides state and icon switching support as well as convinience functions for creating icons.
+    """This is the base class for all widgets. It provides state and icon switching support as well as convenience functions for creating icons.
+
+    .. note:: You must specify either ``icons`` and ``clicked_icons`` or ``icon`` and ``clicked_icon``. Using icon and clicked icon will create a set of icons using the overlays in ``robot_dashboard/images``.
+
+    :param icons: A list of icons for the states of this button.
+    :type icons: list
+    :param clicked_icons: A list of clicked state icons.
+    :type clicked_icons: list
+    :param icon: The base icon file path.
+    :type icon: str
+    :param clicked_icon: The base clicked icon file path.
+    :type clicked_icon: str
     """
     state_changed = pyqtSignal(int)
     def __init__(self, name, icons = [], clicked_icons = [], icon = '', clicked_icon = ''):
@@ -113,7 +124,7 @@ class IconToolButton(QToolButton):
         self.setIcon(self._icons[self.state])
 
     def load_image(self, path):
-        """Convinience function to help with loading images.
+        """Convenience function to help with loading images.
         Path can either be specified as absolute paths or relative to the robot_dashboard/images directory
         
         :param path: The path or name of the image.
@@ -127,7 +138,7 @@ class IconToolButton(QToolButton):
             raise(Exception("Could not load %s"% path))
 
     def overlay(self, image, name):
-        """Convinience function for creating icons with overlays.
+        """Convenience function for creating icons with overlays.
         Overlay path can either be specified as absolute paths or relative to the robot_dashboard/images directory.
 
         :param image: Image to overlay onto.
