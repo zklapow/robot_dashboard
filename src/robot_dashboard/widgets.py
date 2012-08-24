@@ -162,7 +162,7 @@ class MenuDashWidget(IconToolButton):
     :type icon: str
     """
     def __init__(self, context, name, *args, **kwargs):
-        super(MenuDashWidget, self).__init__(name, icon='more.png', clicked_icon = 'more-click.png')
+        super(MenuDashWidget, self).__init__(name, icon='mode.png', clicked_icon = 'mode-click.png')
         self.setStyleSheet('QToolButton::menu-indicator {image: url(none.jpg);} QToolButton {border: none;}')
         self.setPopupMode(QToolButton.InstantPopup)
         self.update_state(0)
