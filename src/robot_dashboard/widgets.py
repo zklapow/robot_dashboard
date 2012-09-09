@@ -28,6 +28,7 @@ Widget Types
 import roslib;roslib.load_manifest('robot_dashboard')
 import rospy
 from robot_monitor import RobotMonitor
+from nav_view import NavViewWidget
 
 from .util import make_icon
 
@@ -370,3 +371,30 @@ class BatteryDashWidget(IconToolButton):
         self.time_remaining = val
         self.setStatusTip("%s remaining"%val)
 
+class NavViewDashWidget(IconToolButton):
+    def __init__(self, context, name='NavView'):
+        super(NavViewDashWidget, self).__init__(name)
+        self.context = context
+
+        self._icon = self.load_image('nav.png')
+        self._clicked_icon = self.load_image('nav-click.png')
+
+        self._icons = [make_icon(self._icon)]
+        self._clicked_icons = [make_icon(self._clicked_icon)]
+
+        self.setIcon(make_icon(self._icon))
+
+        self._nav_view = None
+
+        self.clicked.connect(self._show_nav_view)
+
+    def _show_nav_view(self):
+        if not self._nav_view:
+            #TODO: There should be some way to customize the params for nav_view creation
+            self._nav_view = NavViewWidget() 
+            self._nav_view.destroyed.connect(self._view_closed)
+
+        self.context.add_widget(self._nav_view)
+
+    def _view_closed(self):
+        self._nav_view = None
