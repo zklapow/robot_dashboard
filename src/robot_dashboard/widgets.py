@@ -336,6 +336,14 @@ class ConsoleDashWidget(IconToolButton):
         self._console = None
 
 class BatteryDashWidget(IconToolButton):
+    """A Widget which displays incremental battery state, including a status tip.
+    To use this widget simply call `update_perc` and `update_time` to change the displayed charge percentage and time remaining, respectively.
+
+    :param context: The plugin context
+    :type context: qt_gui.plugin_context.PluginContext
+    :param name: The name of this widget
+    :type name: str
+    """
     def __init__(self, context, name='Battery'):
         super(BatteryDashWidget, self).__init__(name)
         self.setEnabled(False)
@@ -354,6 +362,10 @@ class BatteryDashWidget(IconToolButton):
         self.update_perc(0)
 
     def update_perc(self, val):
+        """Update the displayed battery percentage. The default implementation of this method displays in 20% increments
+        :param val: The new value to be displayed.
+        :type val: int
+        """
         state = round(val/20)
         self.update_state(state)
 
@@ -372,6 +384,12 @@ class BatteryDashWidget(IconToolButton):
         self.setStatusTip("%s remaining"%val)
 
 class NavViewDashWidget(IconToolButton):
+    """A widget which launches a nav_view widget in order to view and interact with the ROS nav stack
+    :param context: The plugin context in which to dsiplay the nav_view
+    :type context: qt_gui.plugin_context.PluginContext
+    :param name: The widgets name
+    :type name: str
+    """
     def __init__(self, context, name='NavView'):
         super(NavViewDashWidget, self).__init__(name)
         self.context = context
