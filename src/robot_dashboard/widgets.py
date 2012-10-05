@@ -350,7 +350,6 @@ class BatteryDashWidget(IconToolButton):
 
         self.setStyleSheet('QToolButton:disabled {}')
 
-        #TODO: Add 0 battery icon
         self._icons = [None]
         self._charge_icons = [None]
 
@@ -370,14 +369,10 @@ class BatteryDashWidget(IconToolButton):
         self.update_state(state)
 
     def _update_state(self, state):
-        #TODO: Remove this try when we have a zero battery icon
-        try:
-            if self.charging:
-                self.setIcon(self._charge_icons[state+1])
-            else:
-                self.setIcon(self._icons[state+1])
-        except TypeError:
-            pass
+        if self.charging:
+            self.setIcon(self._charge_icons[state+1])
+        else:
+            self.setIcon(self._icons[state+1])
 
     def update_time(self, val):
         self.time_remaining = val
