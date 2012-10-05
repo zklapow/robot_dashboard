@@ -1,10 +1,10 @@
 import roslib;roslib.load_manifest('robot_dashboard')
 import rospy
 
-import qt_gui.qt_binding_helper
+from python_qt_binding import loadUi
 
-from QtCore import QSize
-from QtGui import QWidget, QHBoxLayout, QGroupBox, QToolBar
+from python_qt_binding.QtCore import QSize
+from python_qt_binding.QtGui import QWidget, QHBoxLayout, QGroupBox, QToolBar
 from qt_gui.plugin import Plugin
 
 class Dashboard(Plugin):
