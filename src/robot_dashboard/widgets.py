@@ -354,7 +354,7 @@ class BatteryDashWidget(IconToolButton):
         self._icons = [None]
         self._charge_icons = [None]
 
-        for x in range(1, 6):
+        for x in range(0, 6):
             self._icons.append(make_icon(self.load_image('battery-%s.png'%(x*20)), 1))
             self._charge_icons.append(make_icon(self.load_image('battery-charge-%s.png'%(x*20)), 1))
 
@@ -373,9 +373,9 @@ class BatteryDashWidget(IconToolButton):
         #TODO: Remove this try when we have a zero battery icon
         try:
             if self.charging:
-                self.setIcon(self._charge_icons[state])
+                self.setIcon(self._charge_icons[state+1])
             else:
-                self.setIcon(self._icons[state])
+                self.setIcon(self._icons[state+1])
         except TypeError:
             pass
 
