@@ -180,6 +180,9 @@ class MenuDashWidget(IconToolButton):
 
         self.setMenu(self._menu)
 
+    def add_separator(self):
+        return self._menu.addSeparator()
+
     def add_action(self, name, callback):
         """Add an action to the menu, and return the newly created action.
 
@@ -221,11 +224,22 @@ class MonitorDashWidget(IconToolButton):
         self.state = 0
         self.update_state(self.state)
 
+        self._monitor_shown = False
+
     def _show_monitor(self):
         if self._monitor is None:
             self._monitor = RobotMonitor('diagnostics_agg')
             self._monitor.destroyed.connect(self._monitor_close)
-        self.context.add_widget(self._monitor)
+        try:
+            if self._monitor_shown:
+                self.context.remove_widget(self._monitor)
+            else:
+                self.context.add_widget(self._monitor)
+        except Exception as e:
+            pass
+        finally:
+            self._monitor_shown = not self._monitor_shown
+
 
     def _monitor_cb(self, msg):
         self._last_msg_time = rospy.Time.now()
@@ -305,12 +319,25 @@ class ConsoleDashWidget(IconToolButton):
         self._timer.timeout.connect(self._insert_messages)
         self._timer.start(100)
 
-    def _show_console(self):
-        if not self._console:
-            self._console = ConsoleWidget(self._proxymodel)
+        if self._console is None:
+            self._console = ConsoleWidget(self._proxymodel, True)
             self._console.destroyed.connect(self._console_destroyed)
+        self._console_shown = False
 
-        self.context.add_widget(self._console)
+    def _show_console(self):
+        if self._console is None:
+            self._console = ConsoleWidget(self._proxymodel, True)
+            self._console.destroyed.connect(self._console_destroyed)
+        try:
+            if self._console_shown:
+                self.context.remove_widget(self._console)
+            else:
+                self.context.add_widget(self._console)
+        except Exception as e:
+            pass
+        finally:
+            self._console_shown = not self._console_shown
+
  
     def _insert_messages(self):
         self._mutex.lock()
