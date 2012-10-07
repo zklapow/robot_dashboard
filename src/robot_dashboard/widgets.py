@@ -180,6 +180,9 @@ class MenuDashWidget(IconToolButton):
 
         self.setMenu(self._menu)
 
+    def add_separator(self):
+        return self._menu.addSeparator()
+
     def add_action(self, name, callback):
         """Add an action to the menu, and return the newly created action.
 
@@ -221,11 +224,23 @@ class MonitorDashWidget(IconToolButton):
         self.state = 0
         self.update_state(self.state)
 
+        self._monitor_shown = False
+        self.setToolTip('Diagnostics')
+
     def _show_monitor(self):
         if self._monitor is None:
             self._monitor = RobotMonitor('diagnostics_agg')
             self._monitor.destroyed.connect(self._monitor_close)
-        self.context.add_widget(self._monitor)
+        try:
+            if self._monitor_shown:
+                self.context.remove_widget(self._monitor)
+            else:
+                self.context.add_widget(self._monitor)
+        except Exception as e:
+            pass
+        finally:
+            self._monitor_shown = not self._monitor_shown
+
 
     def _monitor_cb(self, msg):
         self._last_msg_time = rospy.Time.now()
@@ -279,16 +294,7 @@ class ConsoleDashWidget(IconToolButton):
     :type context: qt_gui.plugin_context.PluginContext
     """
     def __init__(self, context):
-        super(ConsoleDashWidget, self).__init__('ConsoleWidget')
-
-        # TODO: Console should have more icons and track state
-        self._icon = self.load_image('console.png')
-        self._icon_clicked = self.load_image('console-click.png')
-
-        self._icons = [make_icon(self._icon)]
-        self._clicked_icons = [make_icon(self._icon_clicked)]
-
-        self.setIcon(make_icon(self._icon))
+        super(ConsoleDashWidget, self).__init__('ConsoleWidget',[],[],'console.png','console-click.png')
 
         self._datamodel = MessageDataModel()
         self._proxymodel = MessageProxyModel()
@@ -305,12 +311,26 @@ class ConsoleDashWidget(IconToolButton):
         self._timer.timeout.connect(self._insert_messages)
         self._timer.start(100)
 
-    def _show_console(self):
-        if not self._console:
-            self._console = ConsoleWidget(self._proxymodel)
+        if self._console is None:
+            self._console = ConsoleWidget(self._proxymodel, True)
             self._console.destroyed.connect(self._console_destroyed)
+        self._console_shown = False
+        self.setToolTip("Rosout")
 
-        self.context.add_widget(self._console)
+    def _show_console(self):
+        if self._console is None:
+            self._console = ConsoleWidget(self._proxymodel, True)
+            self._console.destroyed.connect(self._console_destroyed)
+        try:
+            if self._console_shown:
+                self.context.remove_widget(self._console)
+            else:
+                self.context.add_widget(self._console)
+        except Exception as e:
+            pass
+        finally:
+            self._console_shown = not self._console_shown
+
  
     def _insert_messages(self):
         self._mutex.lock()
@@ -322,6 +342,7 @@ class ConsoleDashWidget(IconToolButton):
         # The console may not yet be initialized or may have been closed
         # So fail silently
         try:
+            self.update_rosout()
             self._console.update_status()
         except:
             pass
@@ -334,6 +355,41 @@ class ConsoleDashWidget(IconToolButton):
 
     def _console_destroyed(self):
         self._console = None
+
+    def update_rosout(self):
+        summary_dur = 30.0
+        if (rospy.get_time() < 30.0):
+            summary_dur = rospy.get_time() - 1.0
+
+        if (summary_dur < 0):
+            summary_dur = 0.0
+        summary = self._console.get_message_summary(summary_dur)
+        if (summary.fatal or summary.error):
+            self.update_state(2)
+        elif (summary.warn):
+            self.update_state(1)
+        else:
+            self.update_state(0)
+
+        tooltip = ""
+        if (summary.fatal):
+            tooltip += "\nFatal: %s"%(summary.fatal)
+        if (summary.error):
+            tooltip += "\nError: %s"%(summary.error)
+        if (summary.warn):
+            tooltip += "\nWarn: %s"%(summary.warn)
+        if (summary.info):
+            tooltip += "\nInfo: %s"%(summary.info)
+        if (summary.debug):
+            tooltip += "\nDebug: %s"%(summary.debug)
+
+        if (len(tooltip) == 0):
+            tooltip = "Rosout: no recent activity"
+        else:
+            tooltip = "Rosout: recent activity:" + tooltip
+
+        if (tooltip != self.toolTip()):
+            self.setToolTip(tooltip)
 
 class BatteryDashWidget(IconToolButton):
     """A Widget which displays incremental battery state, including a status tip.
@@ -350,11 +406,10 @@ class BatteryDashWidget(IconToolButton):
 
         self.setStyleSheet('QToolButton:disabled {}')
 
-        #TODO: Add 0 battery icon
         self._icons = [None]
         self._charge_icons = [None]
 
-        for x in range(1, 6):
+        for x in range(0, 6):
             self._icons.append(make_icon(self.load_image('battery-%s.png'%(x*20)), 1))
             self._charge_icons.append(make_icon(self.load_image('battery-charge-%s.png'%(x*20)), 1))
 
@@ -370,14 +425,10 @@ class BatteryDashWidget(IconToolButton):
         self.update_state(state)
 
     def _update_state(self, state):
-        #TODO: Remove this try when we have a zero battery icon
-        try:
-            if self.charging:
-                self.setIcon(self._charge_icons[state])
-            else:
-                self.setIcon(self._icons[state])
-        except TypeError:
-            pass
+        if self.charging:
+            self.setIcon(self._charge_icons[state+1])
+        else:
+            self.setIcon(self._icons[state+1])
 
     def update_time(self, val):
         self.time_remaining = val
