@@ -294,16 +294,7 @@ class ConsoleDashWidget(IconToolButton):
     :type context: qt_gui.plugin_context.PluginContext
     """
     def __init__(self, context):
-        super(ConsoleDashWidget, self).__init__('ConsoleWidget')
-
-        # TODO: Console should have more icons and track state
-        self._icon = self.load_image('console.png')
-        self._icon_clicked = self.load_image('console-click.png')
-
-        self._icons = [make_icon(self._icon)]
-        self._clicked_icons = [make_icon(self._icon_clicked)]
-
-        self.setIcon(make_icon(self._icon))
+        super(ConsoleDashWidget, self).__init__('ConsoleWidget',[],[],'console.png','console-click.png')
 
         self._datamodel = MessageDataModel()
         self._proxymodel = MessageProxyModel()
@@ -351,6 +342,7 @@ class ConsoleDashWidget(IconToolButton):
         # The console may not yet be initialized or may have been closed
         # So fail silently
         try:
+            self.update_rosout()
             self._console.update_status()
         except:
             pass
@@ -363,6 +355,41 @@ class ConsoleDashWidget(IconToolButton):
 
     def _console_destroyed(self):
         self._console = None
+
+    def update_rosout(self):
+        summary_dur = 30.0
+        if (rospy.get_time() < 30.0):
+            summary_dur = rospy.get_time() - 1.0
+
+        if (summary_dur < 0):
+            summary_dur = 0.0
+        summary = self._console.get_message_summary(summary_dur)
+        if (summary.fatal or summary.error):
+            self.update_state(2)
+        elif (summary.warn):
+            self.update_state(1)
+        else:
+            self.update_state(0)
+
+        tooltip = ""
+        if (summary.fatal):
+            tooltip += "\nFatal: %s"%(summary.fatal)
+        if (summary.error):
+            tooltip += "\nError: %s"%(summary.error)
+        if (summary.warn):
+            tooltip += "\nWarn: %s"%(summary.warn)
+        if (summary.info):
+            tooltip += "\nInfo: %s"%(summary.info)
+        if (summary.debug):
+            tooltip += "\nDebug: %s"%(summary.debug)
+
+        if (len(tooltip) == 0):
+            tooltip = "Rosout: no recent activity"
+        else:
+            tooltip = "Rosout: recent activity:" + tooltip
+
+        if (tooltip != self.toolTip()):
+            self.setToolTip(tooltip)
 
 class BatteryDashWidget(IconToolButton):
     """A Widget which displays incremental battery state, including a status tip.
