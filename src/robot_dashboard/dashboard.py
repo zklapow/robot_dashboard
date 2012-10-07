@@ -15,7 +15,7 @@ class Dashboard(Plugin):
         
         self.setup(context)
 
-        if self.name is None:
+        if not hasattr(self, 'name'):
             if not name:
                 self.name = 'Dashboard'
             else:
