@@ -225,6 +225,7 @@ class MonitorDashWidget(IconToolButton):
         self.update_state(self.state)
 
         self._monitor_shown = False
+        self.setToolTip('Diagnostics')
 
     def _show_monitor(self):
         if self._monitor is None:
@@ -323,6 +324,7 @@ class ConsoleDashWidget(IconToolButton):
             self._console = ConsoleWidget(self._proxymodel, True)
             self._console.destroyed.connect(self._console_destroyed)
         self._console_shown = False
+        self.setToolTip("Rosout")
 
     def _show_console(self):
         if self._console is None:
