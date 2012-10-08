@@ -316,6 +316,7 @@ class ConsoleDashWidget(IconToolButton):
             self._console.destroyed.connect(self._console_destroyed)
         self._console_shown = False
         self.setToolTip("Rosout")
+        self.update_state(0)
 
     def _show_console(self):
         if self._console is None:
@@ -363,7 +364,9 @@ class ConsoleDashWidget(IconToolButton):
 
         if (summary_dur < 0):
             summary_dur = 0.0
+
         summary = self._console.get_message_summary(summary_dur)
+
         if (summary.fatal or summary.error):
             self.update_state(2)
         elif (summary.warn):
