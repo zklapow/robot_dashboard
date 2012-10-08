@@ -15,14 +15,16 @@ class Dashboard(Plugin):
         
         self.setup(context)
 
-        if not name:
-            self.name = 'Dashboard'
-        else:
-            self.name = name
+        if self.name is None:
+            if not name:
+                self.name = 'Dashboard'
+            else:
+                self.name = name
 
         self._main_widget = QToolBar()
         self._main_widget.setIconSize(QSize(80, 80))
         self._main_widget.setObjectName(self.name)
+        self._main_widget.setWindowTitle(self.name)
         widgets = self.get_widgets()
 
         layout = QHBoxLayout()
