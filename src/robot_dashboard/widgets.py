@@ -424,7 +424,7 @@ class BatteryDashWidget(IconToolButton):
         :param val: The new value to be displayed.
         :type val: int
         """
-        state = round(val/20)
+        state = round(val/20.0)
         self.update_state(state)
 
     def _update_state(self, state):
