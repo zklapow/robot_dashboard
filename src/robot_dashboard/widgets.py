@@ -38,7 +38,7 @@ from rqt_console.message_data_model import MessageDataModel
 from rqt_console.message_proxy_model import MessageProxyModel
 from diagnostic_msgs.msg import DiagnosticArray
 
-from QtCore import pyqtSignal, QMutex, QTimer, QSize
+from QtCore import Signal, QMutex, QTimer, QSize
 from QtGui import QPushButton, QMenu, QIcon, QWidget, QVBoxLayout, QColor, QProgressBar, QToolButton
 
 from PIL import Image
@@ -65,7 +65,7 @@ class IconToolButton(QToolButton):
     :param clicked_icon: The base clicked icon file path.
     :type clicked_icon: str
     """
-    state_changed = pyqtSignal(int)
+    state_changed = Signal(int)
     def __init__(self, name, icons = [], clicked_icons = [], icon = '', clicked_icon = ''):
         super(IconToolButton, self).__init__()
         self.name = name
@@ -199,8 +199,8 @@ class MonitorDashWidget(IconToolButton):
     :param context: The plugin context to create the monitor in.
     :type context: qt_gui.plugin_context.PluginContext
     """
-    err= pyqtSignal()
-    warn = pyqtSignal()
+    err= Signal()
+    warn = Signal()
     def __init__(self, context):
         super(MonitorDashWidget, self).__init__('MonitorWidget', icon='diagnostics.png', clicked_icon = 'diagnostics-click.png')
 
